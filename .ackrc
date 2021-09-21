@@ -1,0 +1,4 @@
+# https://beyondgrep.com
+--ignore-dir=_build
+--ignore-dir=deps
+--ignore-dir=.elixir_ls
