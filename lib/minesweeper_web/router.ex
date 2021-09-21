@@ -3,9 +3,6 @@ defmodule MinesweeperWeb.Router do
 
   pipeline :browser do
     plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
@@ -13,14 +10,17 @@ defmodule MinesweeperWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Home page
   scope "/", MinesweeperWeb do
     pipe_through :browser
 
     get "/", PageController, :index
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MinesweeperWeb do
-  #   pipe_through :api
-  # end
+  # REST API
+  scope "/api", MinesweeperWeb do
+    pipe_through :api
+
+    post "/games", GameController, :create
+  end
 end

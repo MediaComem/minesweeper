@@ -1,19 +1,6 @@
 defmodule MinesweeperWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :minesweeper
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie,
-    key: "_minesweeper_key",
-    signing_salt: "KYpTG2cR"
-  ]
-
-  socket "/socket", MinesweeperWeb.UserSocket,
-    websocket: true,
-    longpoll: false
-
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
@@ -34,7 +21,6 @@ defmodule MinesweeperWeb.Endpoint do
   end
 
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -43,6 +29,5 @@ defmodule MinesweeperWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
   plug MinesweeperWeb.Router
 end

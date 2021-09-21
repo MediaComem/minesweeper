@@ -2,9 +2,8 @@ use Mix.Config
 
 # Configure your database
 config :minesweeper, Minesweeper.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "minesweeper_dev",
+  username: "unknow",
+  database: "minesweeper",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -25,7 +24,7 @@ config :minesweeper, MinesweeperWeb.Endpoint,
       "node_modules/webpack/bin/webpack.js",
       "--mode",
       "development",
-      "--watch-stdin",
+      "--watch",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
