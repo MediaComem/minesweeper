@@ -1,4 +1,4 @@
-defmodule MinesweeperWeb.PageController do
+defmodule MinesweeperWeb.HomeController do
   use MinesweeperWeb, :controller
 
   def index(conn, _params) do

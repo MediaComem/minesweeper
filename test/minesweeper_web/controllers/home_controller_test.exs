@@ -1,4 +1,4 @@
-defmodule MinesweeperWeb.PageControllerTest do
+defmodule MinesweeperWeb.HomeControllerTest do
   use MinesweeperWeb.ConnCase
 
   test "GET /", %{conn: conn} do

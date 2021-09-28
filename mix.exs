@@ -7,10 +7,18 @@ defmodule Minesweeper.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
-      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      compilers: [:phoenix] ++ Mix.compilers(),
+      deps: project_dependencies(),
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test,
+        "test.watch": :test
+      ],
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -28,19 +36,20 @@ defmodule Minesweeper.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
-  defp deps do
+  defp project_dependencies do
     [
       {:phoenix, "~> 1.5.12"},
       {:phoenix_ecto, "~> 4.4"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:ecto_sql, "~> 3.4"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      # Development dependencies
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      # Test dependencies
+      {:excoveralls, "~> 0.10", only: :test},
+      {:mix_test_watch, "~> 1.0", only: :test, runtime: false}
     ]
   end
 

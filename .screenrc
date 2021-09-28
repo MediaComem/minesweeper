@@ -9,6 +9,6 @@ stuff "cd server\012mix phx.server\012"
 screen -t shell 2
 
 screen -t test 3
-stuff "cd server\012mix test"
+stuff "cd server\012mix test.watch\012"
 
 select shell

@@ -14,7 +14,7 @@ defmodule MinesweeperWeb.Router do
   scope "/", MinesweeperWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", HomeController, :index
   end
 
   # REST API

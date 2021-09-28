@@ -38,6 +38,6 @@ defmodule MinesweeperWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(Minesweeper.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    {:ok, conn: Phoenix.ConnTest.build_conn(), now: DateTime.utc_now()}
   end
 end
