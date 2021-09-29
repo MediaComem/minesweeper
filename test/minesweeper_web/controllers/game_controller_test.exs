@@ -1,8 +1,8 @@
 defmodule MinesweeperWeb.GameControllerTest do
   use MinesweeperWeb.ConnCase, async: true
 
-  alias Minesweeper.Games.Game
-  alias Minesweeper.Games.Move
+  alias Minesweeper.Game
+  alias Minesweeper.Move
   alias Minesweeper.Repo
 
   import Ecto.Query, only: [from: 2]
@@ -10,7 +10,9 @@ defmodule MinesweeperWeb.GameControllerTest do
   @uuid_regexp ~r/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
   test "POST /api/games", %{conn: conn, now: now} do
-    conn = post(conn, "/api/games", first_move: [2, 3])
+    conn =
+      post(conn, "/api/games", width: 30, height: 16, number_of_bombs: 99, first_move: [2, 3])
+
     body = json_response(conn, 200)
 
     assert %{
@@ -29,15 +31,17 @@ defmodule MinesweeperWeb.GameControllerTest do
 
     assert body == %{
              "id" => id,
+             "width" => 30,
+             "height" => 16,
+             "bombs" => 99,
              "state" => "ongoing",
              "moves" => [%{"position" => [2, 3], "played_at" => played_at_str}],
              "created_at" => created_at_str
            }
 
     created_game = from(g in Game, where: g.id == ^id) |> Repo.one()
-    assert %Game{bombs: raw_bombs} = created_game
+    assert %Game{bombs: bombs} = created_game
 
-    bombs = Enum.chunk_every(raw_bombs, 2)
     assert length(bombs) == 99
     assert Enum.uniq(bombs) == bombs
 
@@ -51,8 +55,10 @@ defmodule MinesweeperWeb.GameControllerTest do
     assert created_game == %Game{
              __meta__: created_game.__meta__,
              id: id,
+             width: 30,
+             height: 16,
              state: :ongoing,
-             bombs: raw_bombs,
+             bombs: bombs,
              created_at: created_at,
              updated_at: created_at
            }

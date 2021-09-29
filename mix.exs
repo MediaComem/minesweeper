@@ -15,6 +15,7 @@ defmodule Minesweeper.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
+        "reset.test": :test,
         "test.watch": :test
       ],
       start_permanent: Mix.env() == :prod,
@@ -64,6 +65,7 @@ defmodule Minesweeper.MixProject do
       setup: ["deps.get", "ecto.setup", "cmd npm ci --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       reset: ["ecto.drop", "ecto.setup"],
+      "reset.test": ["reset"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end

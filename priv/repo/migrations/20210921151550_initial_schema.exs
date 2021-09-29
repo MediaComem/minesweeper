@@ -7,8 +7,10 @@ defmodule Minesweeper.Repo.Migrations.InitialSchema do
 
     create table("games", primary_key: false) do
       add :id, :uuid, primary_key: true, default: fragment("uuid_generate_v4()")
-      add :state, :game_state, default: "ongoing", null: false
-      add :bombs, {:array, :integer}, null: false
+      add :width, :integer, null: false
+      add :height, :integer, null: false
+      add :state, :game_state, null: false
+      add :bombs, {:array, {:array, :integer}}, null: false
       add :version, :integer, default: 0, null: false
       timestamps(inserted_at: :created_at, type: :utc_datetime_usec, null: false)
     end
@@ -26,6 +28,8 @@ defmodule Minesweeper.Repo.Migrations.InitialSchema do
       )
     end
 
+    create constraint(:games, :dimensions_are_valid, check: "width >= 1 AND height >= 1")
+    create constraint(:games, :bombs_fit_on_board, check: "array_length(bombs, 1) < width * height - 1")
     create index(:moves, [:game_id, :played_at])
   end
 end

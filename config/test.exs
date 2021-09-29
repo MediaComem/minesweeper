@@ -6,8 +6,7 @@ use Mix.Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :minesweeper, Minesweeper.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "unknow",
   database: "minesweeper-test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
