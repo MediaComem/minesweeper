@@ -22,5 +22,6 @@ defmodule MinesweeperWeb.Router do
     pipe_through :api
 
     post "/games", GameController, :create
+    post "/games/:id/moves", GameController, :play
   end
 end

@@ -11,4 +11,10 @@ defmodule MinesweeperWeb.GameController do
 
     render(conn, "create.json", %{game: game, first_move: first_move})
   end
+
+  def play(conn, params) do
+    with {:ok, move} <- Minesweeper.play(params) do
+      render(conn, "play.json", %{move: move})
+    end
+  end
 end

@@ -29,7 +29,7 @@ defmodule Minesweeper.RulesTest do
     # └──┘
     bomb_position = [1, 2]
 
-    assert uncover([2, 1], [bomb_position], [{[1, 1], 1}, {[2, 2], 1}], {2, 2}) ==
+    assert uncover([2, 1], [bomb_position], [[1, 1], [2, 2]], {2, 2}) ==
              {:ok, {:win, [bomb_position]}}
   end
 
@@ -114,7 +114,7 @@ defmodule Minesweeper.RulesTest do
     # │ *2│
     # └───┘
     bomb_positions = [[1, 1], [1, 2], [2, 2], [2, 3]]
-    uncovered = [{[2, 1], 3}, {[3, 2], 2}, {[3, 3], 2}]
+    uncovered = [[2, 1], [3, 2], [3, 3]]
     target_position = [2, 1]
 
     assert uncover(target_position, bomb_positions, uncovered, {3, 3}) ==

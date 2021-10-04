@@ -1,13 +1,13 @@
 defmodule MinesweeperWeb.GameControllerTest do
-  use MinesweeperWeb.ConnCase, async: true
+  use MinesweeperWeb.ConnCase
 
   alias Minesweeper.Game
   alias Minesweeper.Move
   alias Minesweeper.Repo
 
   import Ecto.Query, only: [from: 2]
-
-  @uuid_regexp ~r/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+  import Minesweeper.Factory
+  import Minesweeper.TestUtils
 
   test "POST /api/games", %{conn: conn, now: now} do
     conn =
@@ -21,7 +21,7 @@ defmodule MinesweeperWeb.GameControllerTest do
              "created_at" => created_at_str
            } = body
 
-    assert id =~ @uuid_regexp
+    assert id =~ uuid_regexp()
 
     assert {:ok, played_at, 0} = DateTime.from_iso8601(played_at_str)
     assert DateTime.diff(now, played_at, :second) <= 1
@@ -70,6 +70,37 @@ defmodule MinesweeperWeb.GameControllerTest do
              id: created_move.id,
              game_id: id,
              position: [2, 3],
+             played_at: played_at
+           }
+  end
+
+  test "POST /api/games/:id/moves", %{conn: conn, now: now} do
+    game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+
+    conn = post(conn, "/api/games/#{game.id}/moves", position: [1, 1])
+
+    body = json_response(conn, 200)
+
+    assert %{"id" => id, "played_at" => played_at_str} = body
+    assert id =~ uuid_regexp()
+    assert {:ok, played_at, 0} = DateTime.from_iso8601(played_at_str)
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert body == %{
+             "id" => id,
+             "game_id" => game.id,
+             "position" => [1, 1],
+             "uncovered" => [[[1, 1], 3]],
+             "played_at" => played_at_str
+           }
+
+    created_move = from(m in Move, where: m.id == ^id) |> Repo.one()
+
+    assert created_move == %Move{
+             __meta__: created_move.__meta__,
+             id: id,
+             game_id: game.id,
+             position: [1, 1],
              played_at: played_at
            }
   end

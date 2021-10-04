@@ -5,7 +5,9 @@ defmodule Minesweeper.Game do
   import Minesweeper.Board, only: [is_width: 1, is_height: 1, is_column: 1, is_row: 1]
 
   alias Ecto.Changeset
+  alias Ecto.Enum
   alias Minesweeper.Game
+  alias Minesweeper.Move
   alias Minesweeper.Rules
 
   @primary_key {:id, :binary_id, autogenerate: false}
@@ -16,8 +18,9 @@ defmodule Minesweeper.Game do
     field :height, :integer
     field :number_of_bombs, :integer, virtual: true
     field :first_move, {:array, :integer}, virtual: true
-    field :state, Ecto.Enum, values: [:ongoing, :win, :loss]
+    field :state, Enum, values: [:ongoing, :win, :loss]
     field :bombs, {:array, {:array, :integer}}
+    has_many :moves, Move
     timestamps inserted_at: :created_at
   end
 

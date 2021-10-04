@@ -9,11 +9,17 @@ defmodule Minesweeper do
 
   alias Ecto.Multi
   alias Minesweeper.Game
+  alias Minesweeper.GameServer
   alias Minesweeper.Move
 
   def start_new_game(params) when is_map(params) do
     Multi.new()
     |> Multi.insert(:game, Game.new(params), returning: [:id])
     |> Multi.insert(:first_move, fn %{game: game} -> Move.first(game.first_move, game) end)
+  end
+
+  def play(%{"id" => id, "position" => position}) when is_binary(id) do
+    :ok = GameServer.start_link(id)
+    GameServer.play(id, position)
   end
 end

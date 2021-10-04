@@ -10,8 +10,9 @@ defmodule Minesweeper.Move do
   @timestamps_opts [type: :utc_datetime_usec]
 
   schema "moves" do
-    field :position, {:array, :integer}
     belongs_to :game, Game
+    field :position, {:array, :integer}
+    field :uncovered, {:array, {:array, :integer}}, virtual: true
     timestamps inserted_at: :played_at, updated_at: false
   end
 

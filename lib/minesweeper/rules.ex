@@ -12,9 +12,8 @@ defmodule Minesweeper.Rules do
       {:ok, {:loss, bombs}}
     else
       newly_revealed_positions = reveal_positions(position, bombs, uncovered, dimensions)
-      uncovered_positions = Enum.map(uncovered, fn uncov -> elem(uncov, 0) end)
 
-      if Board.all_positions(width, height) -- (uncovered_positions ++ newly_revealed_positions) ==
+      if Board.all_positions(width, height) -- (uncovered ++ newly_revealed_positions) ==
            Enum.sort(bombs) do
         {:ok, {:win, bombs}}
       else
@@ -48,10 +47,8 @@ defmodule Minesweeper.Rules do
     if bomb_count != 0 do
       [position]
     else
-      uncovered_positions = Enum.map(uncovered, fn uncov -> elem(uncov, 0) end)
-
       [position]
-      |> contiguous_positions_without_bombs(bombs, uncovered_positions, dimensions)
+      |> contiguous_positions_without_bombs(bombs, uncovered, dimensions)
     end
   end
 

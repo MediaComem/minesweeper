@@ -50,6 +50,7 @@ defmodule Minesweeper.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       # Test dependencies
       {:excoveralls, "~> 0.10", only: :test},
+      {:ex_machina, "~> 2.7.0", only: :test},
       {:mix_test_watch, "~> 1.0", only: :test, runtime: false}
     ]
   end

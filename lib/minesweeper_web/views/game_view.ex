@@ -31,4 +31,22 @@ defmodule MinesweeperWeb.GameView do
       created_at: created_at
     }
   end
+
+  def render("play.json", %{move: move}) do
+    %Move{
+      id: id,
+      game: %Game{id: game_id},
+      position: position,
+      uncovered: uncovered,
+      played_at: played_at
+    } = move
+
+    %{
+      id: id,
+      game_id: game_id,
+      position: position,
+      uncovered: Enum.map(uncovered, &Tuple.to_list/1),
+      played_at: played_at
+    }
+  end
 end

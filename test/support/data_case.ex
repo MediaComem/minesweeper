@@ -34,7 +34,7 @@ defmodule Minesweeper.DataCase do
       Ecto.Adapters.SQL.Sandbox.mode(Minesweeper.Repo, {:shared, self()})
     end
 
-    :ok
+    {:ok, now: DateTime.utc_now()}
   end
 
   @doc """
