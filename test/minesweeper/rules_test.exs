@@ -12,14 +12,14 @@ defmodule Minesweeper.RulesTest do
     # ┌─┐
     # │x│ x == 0
     # └─┘
-    assert uncover([1, 1], [], [], {1, 1}) == {:ok, {:win, []}}
+    assert uncover([1, 1], [], [], {1, 1}) == {:ok, :win}
   end
 
   test "lose on a 1x1 board" do
     # ┌─┐
     # │x│ x == *
     # └─┘
-    assert uncover([1, 1], [[1, 1]], [], {1, 1}) == {:ok, {:loss, [[1, 1]]}}
+    assert uncover([1, 1], [[1, 1]], [], {1, 1}) == {:ok, :loss}
   end
 
   test "win on the third move on a 2x2 board with one bomb" do
@@ -30,7 +30,7 @@ defmodule Minesweeper.RulesTest do
     bomb_position = [1, 2]
 
     assert uncover([2, 1], [bomb_position], [[1, 1], [2, 2]], {2, 2}) ==
-             {:ok, {:win, [bomb_position]}}
+             {:ok, :win}
   end
 
   test "lose on the first move on a 2x2 board with one bomb" do
@@ -40,7 +40,7 @@ defmodule Minesweeper.RulesTest do
     # └──┘
     for bomb_position <- @positions_2x2 do
       assert uncover(bomb_position, [bomb_position], [], {2, 2}) ==
-               {:ok, {:loss, [bomb_position]}}
+               {:ok, :loss}
     end
   end
 
@@ -50,7 +50,7 @@ defmodule Minesweeper.RulesTest do
     # │**│
     # └──┘
     for position <- @positions_2x2 do
-      assert uncover(position, @positions_2x2, [], {2, 2}) == {:ok, {:loss, @positions_2x2}}
+      assert uncover(position, @positions_2x2, [], {2, 2}) == {:ok, :loss}
     end
   end
 

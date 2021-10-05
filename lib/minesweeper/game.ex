@@ -49,6 +49,10 @@ defmodule Minesweeper.Game do
     end)
   end
 
+  def shallow(game) do
+    %__MODULE__{game | moves: %__MODULE__{}.moves}
+  end
+
   defp validate_number_of_bombs(%Changeset{changes: %{width: width, height: height}} = changeset)
        when is_width(width) and is_height(height) do
     changeset

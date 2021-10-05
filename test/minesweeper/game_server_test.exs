@@ -6,40 +6,55 @@ defmodule Minesweeper.GameServerTest do
 
   alias Minesweeper.Game
   alias Minesweeper.GameServer
-  alias Minesweeper.GameServer.State
   alias Minesweeper.Move
 
-  test "play a move in an ongoing game", %{now: now} do
+  test "play in an ongoing game", %{now: now} do
+    bombs = [[1, 2], [2, 1], [2, 2]]
+
     game =
       insert(
         :game,
-        [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]], moves: []],
+        [width: 3, height: 3, bombs: bombs, moves: []],
         returning: [:id]
       )
 
-    assert {:reply, {:ok, move}, %State{game: ^game}} =
-             GameServer.handle_call({:play, [1, 1]}, self(), %State{game: game})
+    assert :ok = GameServer.start_link(game.id)
 
-    assert %Move{id: id, played_at: played_at} = move
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [1, 1])
+
     assert id =~ uuid_regexp()
     assert DateTime.diff(now, played_at, :second) <= 1
 
-    assert move == %Move{
-             __meta__: move.__meta__,
-             id: move.id,
-             game: game,
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: new_move.id,
+             game: updated_game,
              game_id: game.id,
              position: [1, 1],
              uncovered: [{[1, 1], 3}],
              played_at: played_at
            }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 3,
+             height: 3,
+             state: :ongoing,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
   end
 
-  test "play a winning move", %{now: _now} do
+  test "win the game", %{now: now} do
+    bombs = [[1, 2]]
+
     game =
       insert(
         :game,
-        [width: 3, height: 3, bombs: [[1, 2]], moves: []],
+        [width: 3, height: 3, bombs: bombs, moves: []],
         returning: [:id]
       )
 
@@ -47,6 +62,71 @@ defmodule Minesweeper.GameServerTest do
 
     assert :ok = GameServer.start_link(game.id)
 
-    assert {:ok, %Move{game: %Game{state: :win}}} = GameServer.play(game.id, [3, 1])
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [3, 1])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [3, 1],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 3,
+             height: 3,
+             state: :win,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
+  end
+
+  test "lose the game", %{now: now} do
+    bombs = [[1, 2]]
+
+    game =
+      insert(
+        :game,
+        [width: 3, height: 3, bombs: bombs, moves: []],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [1, 1])
+
+    assert :ok = GameServer.start_link(game.id)
+
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [1, 2])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [1, 2],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 3,
+             height: 3,
+             state: :loss,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
   end
 end

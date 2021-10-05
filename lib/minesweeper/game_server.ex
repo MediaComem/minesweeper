@@ -72,25 +72,36 @@ defmodule Minesweeper.GameServer do
     end
   end
 
-  def persist_move(game, position, {:ongoing, uncovered}) do
+  defp persist_move(game, position, {:ongoing, uncovered}) do
     Multi.new()
     |> Multi.put(:game, game)
     |> Multi.insert(
       :move,
-      %Move{game: game, position: position, uncovered: uncovered},
+      build_move(game, position, uncovered),
       returning: [:id]
     )
     |> Repo.transaction()
   end
 
-  def persist_move(game, position, {:win, bombs}) do
+  defp persist_move(game, position, :win), do: finish_game(game, position, :win)
+  defp persist_move(game, position, :loss), do: finish_game(game, position, :loss)
+
+  defp finish_game(game, position, state) do
     Multi.new()
-    |> Multi.update(:game, Changeset.change(game, state: :win))
+    |> Multi.update(:game, Changeset.change(game, state: state))
     |> Multi.insert(
       :move,
-      fn %{game: game} -> %Move{game: game, position: position} end,
+      fn %{game: game} -> build_move(game, position) end,
       returning: [:id]
     )
     |> Repo.transaction()
+  end
+
+  defp build_move(game, position, uncovered \\ nil) do
+    %Move{
+      game: Game.shallow(game),
+      position: position,
+      uncovered: uncovered
+    }
   end
 end

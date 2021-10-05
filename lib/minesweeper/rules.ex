@@ -9,13 +9,13 @@ defmodule Minesweeper.Rules do
              is_dimensions(dimensions) and
              col <= width and row <= height do
     if Enum.member?(bombs, position) do
-      {:ok, {:loss, bombs}}
+      {:ok, :loss}
     else
       newly_revealed_positions = reveal_positions(position, bombs, uncovered, dimensions)
 
       if Board.all_positions(width, height) -- (uncovered ++ newly_revealed_positions) ==
            Enum.sort(bombs) do
-        {:ok, {:win, bombs}}
+        {:ok, :win}
       else
         {
           :ok,
