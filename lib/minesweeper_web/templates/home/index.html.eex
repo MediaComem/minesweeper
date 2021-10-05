@@ -1,10 +1,42 @@
-<form x-data @submit.prevent="$store.game.create()">
-  <input type="text" x-model="$store.game.name" />
-  <button type="submit">Play</button>
-</form>
-
+<!-- Difficulty chooser -->
 <div x-data>
-  <template x-if="$store.game.created">
-    <p x-data>Game <span x-text="$store.game.created"></span> has been created</p>
+  <template x-if="!$store.game.params">
+    <div>
+      <button type="button" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
+      <button type="button" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
+      <button type="button" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
+    </div>
+  </template>
+</div>
+
+<!-- Game -->
+<div x-data>
+  <template x-if="$store.game.params">
+    <table>
+      <tbody>
+        <template x-for="(row, rowIndex) in $store.game.board">
+          <tr>
+            <template x-for="(state, colIndex) in row">
+              <td @click="$store.game.play(colIndex + 1, rowIndex + 1)">
+                <span x-text="state"></span>
+              </td>
+            </template>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </template>
+
+  <template x-if="$store.game.state === 'configured'">
+    <p x-data>Ready</p>
+  </template>
+  <template x-if="$store.game.state === 'ongoing'">
+    <p x-data>Playing</p>
+  </template>
+  <template x-if="$store.game.state === 'win'">
+    <p x-data>You win!</p>
+  </template>
+  <template x-if="$store.game.state === 'loss'">
+    <p x-data>You lose.</p>
   </template>
 </div>

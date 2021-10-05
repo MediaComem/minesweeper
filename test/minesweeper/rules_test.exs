@@ -12,7 +12,7 @@ defmodule Minesweeper.RulesTest do
     # ┌─┐
     # │x│ x == 0
     # └─┘
-    assert uncover([1, 1], [], [], {1, 1}) == {:ok, :win}
+    assert uncover([1, 1], [], [], {1, 1}) == {:ok, {:win, [{[1, 1], 0}]}}
   end
 
   test "lose on a 1x1 board" do
@@ -30,7 +30,7 @@ defmodule Minesweeper.RulesTest do
     bomb_position = [1, 2]
 
     assert uncover([2, 1], [bomb_position], [[1, 1], [2, 2]], {2, 2}) ==
-             {:ok, :win}
+             {:ok, {:win, [{[2, 1], 1}]}}
   end
 
   test "lose on the first move on a 2x2 board with one bomb" do

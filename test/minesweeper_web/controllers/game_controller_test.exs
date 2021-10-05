@@ -13,15 +13,29 @@ defmodule MinesweeperWeb.GameControllerTest do
     conn =
       post(conn, "/api/games", width: 30, height: 16, number_of_bombs: 99, first_move: [2, 3])
 
-    body = json_response(conn, 200)
+    body = json_response(conn, 201)
 
     assert %{
              "id" => id,
-             "moves" => [%{"played_at" => played_at_str}],
+             "moves" => [
+               %{"uncovered" => uncovered, "played_at" => played_at_str}
+             ],
              "created_at" => created_at_str
            } = body
 
     assert id =~ uuid_regexp()
+    assert length(uncovered) >= 1
+    assert length(uncovered) <= 99
+    assert [2, 3] in Enum.map(uncovered, &List.first/1)
+
+    for [[col, row], bombs_uncovered] <- uncovered do
+      assert col >= 1
+      assert col <= 30
+      assert row >= 1
+      assert row <= 16
+      assert bombs_uncovered >= 0
+      assert bombs_uncovered <= 8
+    end
 
     assert {:ok, played_at, 0} = DateTime.from_iso8601(played_at_str)
     assert DateTime.diff(now, played_at, :second) <= 1
@@ -33,9 +47,15 @@ defmodule MinesweeperWeb.GameControllerTest do
              "id" => id,
              "width" => 30,
              "height" => 16,
-             "bombs" => 99,
+             "number_of_bombs" => 99,
              "state" => "ongoing",
-             "moves" => [%{"position" => [2, 3], "played_at" => played_at_str}],
+             "moves" => [
+               %{
+                 "position" => [2, 3],
+                 "uncovered" => uncovered,
+                 "played_at" => played_at_str
+               }
+             ],
              "created_at" => created_at_str
            }
 
@@ -79,7 +99,7 @@ defmodule MinesweeperWeb.GameControllerTest do
 
     conn = post(conn, "/api/games/#{game.id}/moves", position: [1, 1])
 
-    body = json_response(conn, 200)
+    body = json_response(conn, 201)
 
     assert %{"id" => id, "played_at" => played_at_str} = body
     assert id =~ uuid_regexp()
@@ -89,6 +109,10 @@ defmodule MinesweeperWeb.GameControllerTest do
     assert body == %{
              "id" => id,
              "game_id" => game.id,
+             "game" => %{
+               "id" => game.id,
+               "state" => "ongoing"
+             },
              "position" => [1, 1],
              "uncovered" => [[[1, 1], 3]],
              "played_at" => played_at_str

@@ -43,9 +43,16 @@ defmodule Minesweeper.Game do
                               first_move: first_move
                             }
                           } = changeset ->
+      bombs = Rules.initialize_bombs({width, height}, number_of_bombs, first_move)
+
+      {:ok, {state, _uncovered}} = Rules.uncover(first_move, bombs, [], {width, height})
+
       changeset
-      |> put_change(:bombs, Rules.initialize_bombs({width, height}, number_of_bombs, first_move))
-      |> put_change(:state, :ongoing)
+      |> put_change(
+        :bombs,
+        bombs
+      )
+      |> put_change(:state, state)
     end)
   end
 

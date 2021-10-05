@@ -4,6 +4,7 @@ defmodule Minesweeper.Move do
   import Minesweeper.Board, only: [is_column: 1, is_row: 1]
 
   alias Minesweeper.Game
+  alias Minesweeper.Rules
 
   @primary_key {:id, :binary_id, autogenerate: false}
   @foreign_key_type :binary_id
@@ -17,6 +18,14 @@ defmodule Minesweeper.Move do
   end
 
   def first(position = [col, row], game) when is_column(col) and is_row(row) do
-    %__MODULE__{game: game, position: position, played_at: game.created_at}
+    {:ok, {_state, uncovered}} =
+      Rules.uncover(position, game.bombs, [], {game.width, game.height})
+
+    %__MODULE__{
+      game: game,
+      position: position,
+      uncovered: uncovered,
+      played_at: game.created_at
+    }
   end
 end

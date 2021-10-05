@@ -15,7 +15,15 @@ defmodule Minesweeper.Rules do
 
       if Board.all_positions(width, height) -- (uncovered ++ newly_revealed_positions) ==
            Enum.sort(bombs) do
-        {:ok, :win}
+        {
+          :ok,
+          {
+            :win,
+            newly_revealed_positions
+            |> Enum.map(fn pos -> {pos, count_bombs_around(pos, bombs, dimensions)} end)
+            |> Enum.sort()
+          }
+        }
       else
         {
           :ok,
@@ -37,9 +45,10 @@ defmodule Minesweeper.Rules do
              is_column(col) and is_row(row) do
     (Board.all_positions(width, height) -- [first_move])
     |> Enum.shuffle()
-    |> Enum.take(99)
+    |> Enum.take(number_of_bombs)
   end
 
+  # FIXME: do not continue revealing positions past positions next to bombs
   defp reveal_positions([col, row] = position, bombs, uncovered, dimensions)
        when is_column(col) and is_row(row) do
     bomb_count = count_bombs_around(position, bombs, dimensions)

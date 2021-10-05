@@ -19,6 +19,7 @@ defmodule Minesweeper do
   end
 
   def play(%{"id" => id, "position" => position}) when is_binary(id) do
+    # TODO: check game status
     :ok = GameServer.start_link(id)
     GameServer.play(id, position)
   end
