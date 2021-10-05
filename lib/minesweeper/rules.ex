@@ -56,8 +56,11 @@ defmodule Minesweeper.Rules do
     if bomb_count != 0 do
       [position]
     else
-      [position]
-      |> contiguous_positions_without_bombs(bombs, uncovered, dimensions)
+      base =
+        [position]
+        |> contiguous_positions_not_next_to_bombs(bombs, uncovered, dimensions)
+
+      Enum.uniq(base ++ positions_around(base, dimensions)) -- uncovered
     end
   end
 
@@ -67,13 +70,27 @@ defmodule Minesweeper.Rules do
     |> length()
   end
 
-  defp contiguous_positions_without_bombs(positions, bombs, uncovered, dimensions) do
+  defp contiguous_positions_not_next_to_bombs(positions, bombs, uncovered, dimensions) do
     new_positions =
-      Enum.uniq(
-        Enum.flat_map(positions, fn pos ->
-          positions_around(pos, dimensions)
-        end)
-      ) -- (positions ++ bombs ++ uncovered)
+      Enum.filter(
+        positions_around(positions, dimensions) -- (positions ++ bombs ++ uncovered),
+        fn pos -> count_bombs_around(pos, bombs, dimensions) == 0 end
+      )
+
+    if new_positions == [] do
+      positions
+    else
+      contiguous_positions_not_next_to_bombs(
+        positions ++ new_positions,
+        bombs,
+        uncovered,
+        dimensions
+      )
+    end
+  end
+
+  defp contiguous_positions_without_bombs(positions, bombs, uncovered, dimensions) do
+    new_positions = positions_around(positions, dimensions) -- (positions ++ bombs ++ uncovered)
 
     if new_positions == [] do
       positions
@@ -87,7 +104,7 @@ defmodule Minesweeper.Rules do
     end
   end
 
-  defp positions_around([col, row], {width, height}),
+  defp positions_around([col, row], {width, height}) when is_column(col) and is_row(row),
     do:
       for(
         dx <- -1..1,
@@ -99,4 +116,10 @@ defmodule Minesweeper.Rules do
         row + dy <= height,
         do: [col + dx, row + dy]
       )
+
+  defp positions_around(positions, dimensions) when is_list(positions) do
+    positions
+    |> Enum.flat_map(fn pos -> positions_around(pos, dimensions) end)
+    |> Enum.uniq()
+  end
 end

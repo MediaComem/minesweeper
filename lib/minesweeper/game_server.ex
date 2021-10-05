@@ -1,3 +1,4 @@
+# TODO: shut down game server when game is done
 defmodule Minesweeper.GameServer do
   use GenServer
 
