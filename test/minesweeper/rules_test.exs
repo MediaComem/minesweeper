@@ -139,9 +139,9 @@ defmodule Minesweeper.RulesTest do
 
   test "reveal an island on a 5x5 board" do
     # ┌─────┐
-    # │  **1│
-    # │***31│
-    # │*631x│ x == 0
+    # │  ** │
+    # │**321│
+    # │* 30x│ x == 0
     # │**432│
     # │ ****│
     # └─────┘
@@ -153,7 +153,6 @@ defmodule Minesweeper.RulesTest do
       [2, 4],
       [2, 5],
       [3, 1],
-      [3, 2],
       [3, 5],
       [4, 1],
       [4, 5],
@@ -165,13 +164,12 @@ defmodule Minesweeper.RulesTest do
 
     expected_revealed =
       Enum.sort([
-        {[2, 3], 6},
-        {[3, 3], 3},
+        {[3, 2], 3},
+        {[3, 3], 2},
         {[3, 4], 4},
-        {[4, 2], 3},
-        {[4, 3], 1},
+        {[4, 2], 2},
+        {[4, 3], 0},
         {[4, 4], 3},
-        {[5, 1], 1},
         {[5, 2], 1},
         {[5, 3], 0},
         {[5, 4], 2}
