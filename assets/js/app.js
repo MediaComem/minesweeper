@@ -1,4 +1,3 @@
-
 // Webpack automatically bundles all modules in your entry points. Those entry
 // points can be configured in "webpack.config.js".
 
@@ -6,19 +5,21 @@
 // MiniCssExtractPlugin is used to separate it out into its own CSS file.
 import "../css/app.css";
 
-import Alpine from 'alpinejs';
+import Alpine from "alpinejs";
 
-Alpine.store('game', {
+Alpine.store("game", {
   id: null,
-  state: 'none',
+  state: "none",
   params: null,
   board: [],
   playing: false,
 
   configure(params) {
     this.params = params;
-    this.board = Array(params.height).fill().map(() => Array(params.width).fill(-1));
-    this.state = 'configured';
+    this.board = Array(params.height)
+      .fill()
+      .map(() => Array(params.width).fill(-1));
+    this.state = "configured";
   },
 
   play(col, row) {
@@ -28,38 +29,47 @@ Alpine.store('game', {
 
     this.playing = true;
 
-    const action = this.state === 'configured' ? this.start(col, row) : this.uncover(col, row);
+    const action =
+      this.state === "configured"
+        ? this.start(col, row)
+        : this.uncover(col, row);
     action.finally(() => {
       this.playing = false;
     });
   },
 
   async start(col, row) {
-    const res = await fetch('/api/games', {
-      method: 'POST',
+    const res = await fetch("/api/games", {
+      method: "POST",
       body: JSON.stringify({ ...this.params, first_move: [col, row] }),
       headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+        "Content-Type": "application/json",
+      },
+    });
 
-    const { id, moves: [ { uncovered } ] } = await res.json();
+    const {
+      id,
+      moves: [{ uncovered }],
+    } = await res.json();
 
     this.id = id;
-    this.state = 'ongoing';
+    this.state = "ongoing";
     this.reveal(uncovered);
   },
 
   async uncover(col, row) {
     const res = await fetch(`/api/games/${this.id}/moves`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ position: [col, row] }),
       headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+        "Content-Type": "application/json",
+      },
+    });
 
-    const { uncovered, game: { bombs, state } } = await res.json();
+    const {
+      uncovered,
+      game: { bombs, state },
+    } = await res.json();
 
     this.state = state;
 
@@ -80,9 +90,17 @@ Alpine.store('game', {
 
   revealBombs(bombs) {
     for (const [col, row] of bombs) {
-      this.board[row - 1][col - 1] = '*';
+      this.board[row - 1][col - 1] = "*";
     }
-  }
+  },
+
+  reset() {
+    this.id = null;
+    this.state = "none";
+    this.params = null;
+    this.board = [];
+    this.playing = false;
+  },
 });
 
 Alpine.start();

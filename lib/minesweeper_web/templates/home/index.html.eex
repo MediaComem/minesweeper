@@ -1,24 +1,34 @@
 <!-- Difficulty chooser -->
 <div x-data>
   <template x-if="!$store.game.params">
-    <div>
-      <button type="button" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
-      <button type="button" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
-      <button type="button" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
+    <div class="d-flex justify-content-center mt-5">
+      <button type="button" class="btn btn-lg btn-success" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
+      <button type="button" class="btn btn-lg btn-warning mx-2" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
+      <button type="button" class="btn btn-lg btn-danger" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
     </div>
   </template>
 </div>
 
 <!-- Game -->
-<div x-data>
+<div class="d-flex flex-column justify-content-center align-items-center" x-data>
   <template x-if="$store.game.params">
-    <table>
+    <table id="game" class="mt-5">
       <tbody>
         <template x-for="(row, rowIndex) in $store.game.board">
           <tr>
             <template x-for="(state, colIndex) in row">
               <td @click="$store.game.play(colIndex + 1, rowIndex + 1)">
-                <span x-text="state"></span>
+                <template x-if="state === -1">
+                  <div class="unknown"></div>
+                </template>
+                <template x-if="state !== -1 && state !== '*'">
+                  <div class="uncovered" x-text="state"></div>
+                </template>
+                <template x-if="state === '*'">
+                  <div class="bomb">
+                    <img src="/images/bomb.svg" alt="Bomb" />
+                  </div>
+                </template>
               </td>
             </template>
           </tr>
@@ -27,16 +37,22 @@
     </table>
   </template>
 
-  <template x-if="$store.game.state === 'configured'">
-    <p x-data>Ready</p>
-  </template>
-  <template x-if="$store.game.state === 'ongoing'">
-    <p x-data>Playing</p>
-  </template>
-  <template x-if="$store.game.state === 'win'">
-    <p x-data>You win!</p>
-  </template>
-  <template x-if="$store.game.state === 'loss'">
-    <p x-data>You lose.</p>
-  </template>
+  <div class="mt-5">
+    <template x-if="$store.game.state === 'configured'">
+      <p class="lead text-center text-info" x-data>Ready</p>
+    </template>
+    <template x-if="$store.game.state === 'ongoing'">
+      <p class="lead text-center text-info" x-data>Playing...</p>
+    </template>
+    <template x-if="$store.game.state === 'win'">
+      <p class="lead text-center text-success" x-data>You win!</p>
+    </template>
+    <template x-if="$store.game.state === 'loss'">
+      <p class="lead text-center text-danger" x-data>You lose.</p>
+    </template>
+
+    <template x-if="$store.game.state === 'win' || $store.game.state === 'loss'">
+      <button type="button" class="btn btn-primary" @click="$store.game.reset()">Play again</button>
+    </template>
+  </div>
 </div>

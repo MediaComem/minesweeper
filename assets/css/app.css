@@ -1,2 +1,32 @@
-/* This file is for your main application css. */
-/* @import "./example.css"; */
+table#game {
+  border-collapse: collapse;
+}
+
+table#game td {
+  width: 24px;
+  height: 24px;
+}
+
+table#game td .unknown,
+table#game td .uncovered,
+table#game td .bomb {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 90%;
+}
+
+table#game td .unknown {
+  background-color: #555555;
+}
+
+table#game td .uncovered {
+  background-color: #eeeeee;
+}
+
+table#game td .bomb img {
+  width: 90%;
+  height: 90%;
+  filter: invert(15%) sepia(88%) saturate(6736%) hue-rotate(358deg) brightness(112%) contrast(112%);
+}
