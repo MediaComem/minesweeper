@@ -89,21 +89,6 @@ defmodule Minesweeper.Rules do
     end
   end
 
-  defp contiguous_positions_without_bombs(positions, bombs, uncovered, dimensions) do
-    new_positions = positions_around(positions, dimensions) -- (positions ++ bombs ++ uncovered)
-
-    if new_positions == [] do
-      positions
-    else
-      contiguous_positions_without_bombs(
-        positions ++ new_positions,
-        bombs,
-        uncovered,
-        dimensions
-      )
-    end
-  end
-
   defp positions_around([col, row], {width, height}) when is_column(col) and is_row(row),
     do:
       for(

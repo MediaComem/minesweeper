@@ -226,4 +226,135 @@ defmodule Minesweeper.RulesTest do
                {:ok, {:ongoing, expected_revealed}}
     end
   end
+
+  test "surround one bomb on a 5x5 board" do
+    # ┌─────┐
+    # │001  │
+    # │001* │
+    # │00111│
+    # │00000│
+    # │00000│
+    # └─────┘
+    bomb_positions = [
+      [4, 2]
+    ]
+
+    uncovered = []
+
+    target_positions = [
+      [1, 1],
+      [1, 2],
+      [1, 3],
+      [1, 4],
+      [1, 5],
+      [2, 1],
+      [2, 2],
+      [2, 3],
+      [2, 4],
+      [2, 5],
+      [3, 4],
+      [3, 5],
+      [4, 4],
+      [4, 5],
+      [5, 4],
+      [5, 5]
+    ]
+
+    expected_revealed =
+      Enum.sort([
+        {[1, 1], 0},
+        {[1, 2], 0},
+        {[1, 3], 0},
+        {[1, 4], 0},
+        {[1, 5], 0},
+        {[2, 1], 0},
+        {[2, 2], 0},
+        {[2, 3], 0},
+        {[2, 4], 0},
+        {[2, 5], 0},
+        {[3, 1], 1},
+        {[3, 2], 1},
+        {[3, 3], 1},
+        {[3, 4], 0},
+        {[3, 5], 0},
+        {[4, 3], 1},
+        {[4, 4], 0},
+        {[4, 5], 0},
+        {[5, 3], 1},
+        {[5, 4], 0},
+        {[5, 5], 0}
+      ])
+
+    for target_position <- target_positions do
+      assert uncover(target_position, bomb_positions, uncovered, {5, 5}) ==
+               {:ok, {:ongoing, expected_revealed}}
+    end
+  end
+
+  test "win on the first move with one bomb on a 5x5 board" do
+    # ┌─────┐
+    # │00000│
+    # │01110│
+    # │01*10│
+    # │01110│
+    # │00000│
+    # └─────┘
+    bomb_positions = [
+      [3, 3]
+    ]
+
+    uncovered = []
+
+    target_positions = [
+      [1, 1],
+      [1, 2],
+      [1, 3],
+      [1, 4],
+      [1, 5],
+      [2, 1],
+      [2, 5],
+      [3, 1],
+      [3, 5],
+      [4, 1],
+      [4, 5],
+      [5, 1],
+      [5, 2],
+      [5, 3],
+      [5, 4],
+      [5, 5]
+    ]
+
+    expected_revealed =
+      Enum.sort([
+        {[1, 1], 0},
+        {[1, 2], 0},
+        {[1, 3], 0},
+        {[1, 4], 0},
+        {[1, 5], 0},
+        {[2, 1], 0},
+        {[2, 2], 1},
+        {[2, 3], 1},
+        {[2, 4], 1},
+        {[2, 5], 0},
+        {[3, 1], 0},
+        {[3, 2], 1},
+        {[3, 4], 1},
+        {[3, 5], 0},
+        {[4, 1], 0},
+        {[4, 2], 1},
+        {[4, 3], 1},
+        {[4, 4], 1},
+        {[4, 5], 0},
+        {[5, 1], 0},
+        {[5, 2], 0},
+        {[5, 3], 0},
+        {[5, 4], 0},
+        {[5, 5], 0}
+      ])
+
+    for target_position <- target_positions do
+      assert uncover(target_position, bomb_positions, uncovered, {5, 5}) ==
+               {:ok, {:win, expected_revealed}}
+    end
+  end
 end
