@@ -16,15 +16,18 @@
       <tbody>
         <template x-for="(row, rowIndex) in $store.game.board">
           <tr>
-            <template x-for="(state, colIndex) in row">
-              <td @click="$store.game.play(colIndex + 1, rowIndex + 1)">
-                <template x-if="state === -1">
+            <template x-for="(cell, colIndex) in row">
+              <td @click="$store.game.play(colIndex + 1, rowIndex + 1)" @contextmenu="$store.game.flag(colIndex + 1, rowIndex + 1, $event)">
+                <template x-if="cell.flagged">
+                  <div class="flagged"></div>
+                </template>
+                <template x-if="!cell.flagged && cell.value === -1">
                   <div class="unknown"></div>
                 </template>
-                <template x-if="state !== -1 && state !== '*'">
-                  <div class="uncovered" x-text="state"></div>
+                <template x-if="!cell.flagged && cell.value !== -1 && cell.value !== '*'">
+                  <div class="uncovered" x-text="cell.value"></div>
                 </template>
-                <template x-if="state === '*'">
+                <template x-if="!cell.flagged && cell.value === '*'">
                   <div class="bomb">
                     <img src="/images/bomb.svg" alt="Bomb" />
                   </div>

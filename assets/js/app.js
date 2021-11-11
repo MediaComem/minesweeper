@@ -18,8 +18,20 @@ Alpine.store("game", {
     this.params = params;
     this.board = Array(params.height)
       .fill()
-      .map(() => Array(params.width).fill(-1));
+      .map(() =>
+        Array(params.width)
+          .fill(-1)
+          .map(() => ({ value: -1, flagged: false }))
+      );
     this.state = "configured";
+  },
+
+  flag(col, row, event) {
+    event.preventDefault();
+    const cell = this.board[row - 1][col - 1];
+    if (cell.value === -1) {
+      cell.flagged = !cell.flagged;
+    }
   },
 
   play(col, row) {
@@ -33,6 +45,7 @@ Alpine.store("game", {
       this.state === "configured"
         ? this.start(col, row)
         : this.uncover(col, row);
+
     action.finally(() => {
       this.playing = false;
     });
@@ -84,13 +97,13 @@ Alpine.store("game", {
 
   reveal(uncovered) {
     for (const [[col, row], bombs] of uncovered) {
-      this.board[row - 1][col - 1] = bombs;
+      this.board[row - 1][col - 1] = { value: bombs, flagged: false };
     }
   },
 
   revealBombs(bombs) {
     for (const [col, row] of bombs) {
-      this.board[row - 1][col - 1] = "*";
+      this.board[row - 1][col - 1] = { value: "*", flagged: false };
     }
   },
 
