@@ -2,8 +2,9 @@
 <div x-data>
   <template x-if="!$store.game.params">
     <div class="d-flex justify-content-center mt-5">
-      <button type="button" class="btn btn-lg btn-success" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
-      <button type="button" class="btn btn-lg btn-warning mx-2" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
+      <button type="button" class="btn btn-lg btn-info me-2" @click="$store.game.configure({ width: 5, height: 5, number_of_bombs: 3 })">Piece of cake</button>
+      <button type="button" class="btn btn-lg btn-success me-2" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
+      <button type="button" class="btn btn-lg btn-warning me-2" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
       <button type="button" class="btn btn-lg btn-danger" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
     </div>
   </template>
@@ -27,7 +28,12 @@
                 <template x-if="!cell.flagged && cell.value !== -1 && cell.value !== '*'">
                   <div class="uncovered" x-text="cell.value"></div>
                 </template>
-                <template x-if="!cell.flagged && cell.value === '*'">
+                <template x-if="!cell.flagged && cell.value === '*' && $store.game.state === 'win'">
+                  <div class="defused">
+                    <img src="/images/bomb.svg" alt="Bomb" />
+                  </div>
+                </template>
+                <template x-if="!cell.flagged && cell.value === '*' && $store.game.state === 'loss'">
                   <div class="bomb">
                     <img src="/images/bomb.svg" alt="Bomb" />
                   </div>

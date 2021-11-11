@@ -14,11 +14,12 @@ defmodule Minesweeper.GameServer do
 
   defmodule State do
     @type t :: %__MODULE__{
-            game: Game.t()
+            game: Game.t(),
+            uncovered: list()
           }
 
     @enforce_keys [:game]
-    defstruct [:game]
+    defstruct [:game, uncovered: nil]
   end
 
   def start_link(id) when is_binary(id) do
@@ -47,7 +48,7 @@ defmodule Minesweeper.GameServer do
       |> Repo.one()
       |> Repo.preload(:moves)
 
-    {enriched_moves, _} =
+    {enriched_moves, all_uncovered} =
       Enum.reduce(game.moves, {[], []}, fn move, {moves, acc} ->
         {:ok, {:ongoing, uncovered}} =
           Rules.uncover(move.position, game.bombs, acc, {game.width, game.height})
@@ -56,18 +57,25 @@ defmodule Minesweeper.GameServer do
          acc ++ Enum.map(uncovered, fn {pos, _} -> pos end)}
       end)
 
-    {:noreply, %State{game: %Game{game | moves: enriched_moves}}}
+    {:noreply, %State{game: %Game{game | moves: enriched_moves}, uncovered: all_uncovered}}
   end
 
   @impl true
   def handle_call({:play, position}, _from, state) do
-    %State{game: %Game{width: width, height: height, bombs: bombs, moves: moves} = game} = state
-    uncovered_positions = Enum.map(moves, fn move -> move.position end)
+    %State{
+      game: %Game{width: width, height: height, bombs: bombs} = game,
+      uncovered: uncovered_positions
+    } = state
 
     {:ok, result} = Rules.uncover(position, bombs, uncovered_positions, {width, height})
 
     with {:ok, %{game: updated_game, move: created_move}} <- persist_move(game, position, result) do
-      {:reply, {:ok, created_move}, %State{state | game: updated_game}}
+      {:reply, {:ok, created_move},
+       %State{
+         state
+         | game: updated_game,
+           uncovered: uncovered_positions ++ Enum.map(created_move.uncovered || [], &elem(&1, 0))
+       }}
     else
       {:error, error} -> {:reply, {:error, error}, state}
     end

@@ -153,4 +153,274 @@ defmodule Minesweeper.GameServerTest do
              updated_at: updated_game.updated_at
            }
   end
+
+  test "win a complex game in 1 move after 1 stored move", %{now: now} do
+    bombs = [[1, 5], [2, 4], [2, 5]]
+
+    # ┌─────┐
+    # │     │
+    # │     │
+    # │     │
+    # │ *   │
+    # │**   │
+    # └─────┘
+    game =
+      insert(
+        :game,
+        [width: 5, height: 5, bombs: bombs, moves: []],
+        returning: [:id]
+      )
+
+    # ┌─────┐
+    # │00000│ a = 0
+    # │a0000│
+    # │11100│
+    # │ *200│
+    # │**200│
+    # └─────┘
+    insert(:move, game: game, position: [1, 2])
+
+    assert :ok = GameServer.start_link(game.id)
+
+    # ┌─────┐
+    # │00000│ b = 3
+    # │a0000│
+    # │11100│
+    # │b*200│
+    # │**200│
+    # └─────┘
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [1, 4])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [1, 4],
+             uncovered: [
+               {[1, 4], 3}
+             ],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 5,
+             height: 5,
+             state: :win,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
+  end
+
+  test "win a complex game in 2 moves", %{now: now} do
+    bombs = [[1, 5], [2, 4], [2, 5]]
+
+    # ┌─────┐
+    # │     │
+    # │     │
+    # │     │
+    # │ *   │
+    # │**   │
+    # └─────┘
+    game =
+      insert(
+        :game,
+        [width: 5, height: 5, bombs: bombs, moves: []],
+        returning: [:id]
+      )
+
+    assert :ok = GameServer.start_link(game.id)
+
+    # ┌─────┐
+    # │00000│ a = 0
+    # │a0000│
+    # │11100│
+    # │ *200│
+    # │**200│
+    # └─────┘
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [1, 2])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [1, 2],
+             uncovered: [
+               {[1, 1], 0},
+               {[1, 2], 0},
+               {[1, 3], 1},
+               {[2, 1], 0},
+               {[2, 2], 0},
+               {[2, 3], 1},
+               {[3, 1], 0},
+               {[3, 2], 0},
+               {[3, 3], 1},
+               {[3, 4], 2},
+               {[3, 5], 2},
+               {[4, 1], 0},
+               {[4, 2], 0},
+               {[4, 3], 0},
+               {[4, 4], 0},
+               {[4, 5], 0},
+               {[5, 1], 0},
+               {[5, 2], 0},
+               {[5, 3], 0},
+               {[5, 4], 0},
+               {[5, 5], 0}
+             ],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 5,
+             height: 5,
+             state: :ongoing,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
+
+    # ┌─────┐
+    # │00000│ b = 3
+    # │a0000│
+    # │11100│
+    # │b*200│
+    # │**200│
+    # └─────┘
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [1, 4])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [1, 4],
+             uncovered: [
+               {[1, 4], 3}
+             ],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 5,
+             height: 5,
+             state: :win,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
+  end
+
+  test "win a complex game in 1 move after 4 stored moves", %{now: now} do
+    bombs = [[1, 3], [3, 5], [5, 3]]
+
+    # ┌─────┐
+    # │     │
+    # │     │
+    # │*   *│
+    # │     │
+    # │  *  │
+    # └─────┘
+    game =
+      insert(
+        :game,
+        [width: 5, height: 5, bombs: bombs, moves: []],
+        returning: [:id]
+      )
+
+    # ┌─────┐
+    # │     │ a = 1
+    # │a    │
+    # │*   *│
+    # │     │
+    # │  *  │
+    # └─────┘
+    insert(:move, game: game, position: [1, 2])
+
+    # ┌─────┐
+    # │00000│ a = 1
+    # │a1b11│ b = 0
+    # │*101*│
+    # │ 212 │
+    # │  *  │
+    # └─────┘
+    insert(:move, game: game, position: [3, 2])
+
+    # ┌─────┐
+    # │00000│ a = 1
+    # │a1b11│ b = 0
+    # │*101*│ c = 1
+    # │1212 │
+    # │c1*  │
+    # └─────┘
+    insert(:move, game: game, position: [1, 5])
+
+    # ┌─────┐
+    # │00000│ a = 1
+    # │a1b11│ b = 0
+    # │*101*│ c = 1
+    # │1212d│ d = 1
+    # │c1*  │
+    # └─────┘
+    insert(:move, game: game, position: [5, 4])
+
+    assert :ok = GameServer.start_link(game.id)
+
+    # ┌─────┐
+    # │00000│ e = 0
+    # │11011│
+    # │*101*│
+    # │12121│
+    # │c1*1e│
+    # └─────┘
+    assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
+             GameServer.play(game.id, [5, 5])
+
+    assert id =~ uuid_regexp()
+    assert DateTime.diff(now, played_at, :second) <= 1
+
+    assert new_move == %Move{
+             __meta__: new_move.__meta__,
+             id: id,
+             game: updated_game,
+             game_id: updated_game.id,
+             position: [5, 5],
+             uncovered: [
+               {[4, 5], 1},
+               {[5, 5], 0}
+             ],
+             played_at: played_at
+           }
+
+    assert updated_game == %Game{
+             __meta__: updated_game.__meta__,
+             id: game.id,
+             width: 5,
+             height: 5,
+             state: :win,
+             bombs: bombs,
+             created_at: game.created_at,
+             updated_at: updated_game.updated_at
+           }
+  end
 end

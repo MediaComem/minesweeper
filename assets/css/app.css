@@ -10,7 +10,8 @@ table#game td {
 table#game td .flagged,
 table#game td .unknown,
 table#game td .uncovered,
-table#game td .bomb {
+table#game td .bomb,
+table#game td .defused {
   width: 100%;
   height: 100%;
   text-align: center;
@@ -34,4 +35,10 @@ table#game td .bomb img {
   width: 90%;
   height: 90%;
   filter: invert(15%) sepia(88%) saturate(6736%) hue-rotate(358deg) brightness(112%) contrast(112%);
+}
+
+table#game td .defused img {
+  width: 90%;
+  height: 90%;
+  filter: invert(24%) sepia(86%) saturate(3606%) hue-rotate(106deg) brightness(97%) contrast(107%);
 }
