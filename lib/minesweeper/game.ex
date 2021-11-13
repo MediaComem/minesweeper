@@ -31,9 +31,16 @@ defmodule Minesweeper.Game do
       |> validate_required([:width, :height, :number_of_bombs, :first_move])
       |> validate_number(:width, greater_than_or_equal_to: 2, less_than_or_equal_to: 100)
       |> validate_number(:height, greater_than_or_equal_to: 2, less_than_or_equal_to: 100)
+      |> validate_number(:number_of_bombs, greater_than_or_equal_to: 1)
+      |> validate_change(:first_move, fn :first_move, first_move ->
+        case first_move do
+          [col, row] when is_column(col) and is_row(row) -> []
+          _ -> [first_move: "is not a column and row pair"]
+        end
+      end)
 
     changes
-    |> validate_number_of_bombs()
+    |> validate_number_of_bombs_fits_board()
     |> validate_first_move()
     |> prepare_changes(fn %Changeset{
                             changes: %{
@@ -60,16 +67,14 @@ defmodule Minesweeper.Game do
     %__MODULE__{game | moves: %__MODULE__{}.moves}
   end
 
-  defp validate_number_of_bombs(%Changeset{changes: %{width: width, height: height}} = changeset)
+  defp validate_number_of_bombs_fits_board(
+         %Changeset{changes: %{width: width, height: height}} = changeset
+       )
        when is_width(width) and is_height(height) do
-    changeset
-    |> validate_number(:number_of_bombs,
-      greater_than_or_equal_to: 1,
-      less_than: width * height - 1
-    )
+    validate_number(changeset, :number_of_bombs, less_than: width * height - 1)
   end
 
-  defp validate_number_of_bombs(changeset), do: changeset
+  defp validate_number_of_bombs_fits_board(changeset), do: changeset
 
   defp validate_first_move(%Changeset{changes: %{width: width, height: height}} = changeset)
        when is_width(width) and is_height(height) do

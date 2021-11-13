@@ -7,6 +7,7 @@ defmodule Minesweeper do
   if it comes from the database, an external API or others.
   """
 
+  import Minesweeper.Board, only: [is_column: 1, is_row: 1]
   alias Ecto.Multi
   alias Minesweeper.Game
   alias Minesweeper.GameServer
@@ -18,9 +19,11 @@ defmodule Minesweeper do
     |> Multi.insert(:first_move, fn %{game: game} -> Move.first(game.first_move, game) end)
   end
 
-  def play(%{"id" => id, "position" => position}) when is_binary(id) do
+  def play(game_id, [col, row] = position)
+      when is_binary(game_id) and is_column(col) and is_row(row) do
     # TODO: check game status
-    :ok = GameServer.start_link(id)
-    GameServer.play(id, position)
+    with :ok <- GameServer.start_link(game_id) do
+      GameServer.play(game_id, position)
+    end
   end
 end

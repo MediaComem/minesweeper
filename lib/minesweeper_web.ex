@@ -22,6 +22,7 @@ defmodule MinesweeperWeb do
       use Phoenix.Controller, namespace: MinesweeperWeb
 
       import Plug.Conn
+      alias MinesweeperWeb.ApiFallbackController
       alias MinesweeperWeb.Router.Helpers, as: Routes
     end
   end

@@ -22,29 +22,30 @@ defmodule Minesweeper.GameServer do
     defstruct [:game, uncovered: nil]
   end
 
-  def start_link(id) when is_binary(id) do
-    case GenServer.start_link(__MODULE__, id, name: {:global, {__MODULE__, id}}) do
+  def start_link(game_id) when is_binary(game_id) do
+    case GenServer.start_link(__MODULE__, game_id, name: {:global, {__MODULE__, game_id}}) do
       {:ok, _} -> :ok
       {:error, {:already_started, _}} -> :ok
       {:error, error} -> {:error, error}
     end
   end
 
-  def play(id, [col, row] = position) when is_column(col) and is_row(row) do
-    GenServer.call({:global, {__MODULE__, id}}, {:play, position})
+  def play(game_id, [col, row] = position)
+      when is_binary(game_id) and is_column(col) and is_row(row) do
+    GenServer.call({:global, {__MODULE__, game_id}}, {:play, position})
   end
 
   # Server (callbacks)
 
   @impl true
-  def init(id) when is_binary(id) do
-    {:ok, nil, {:continue, id}}
+  def init(game_id) when is_binary(game_id) do
+    {:ok, nil, {:continue, game_id}}
   end
 
   @impl true
-  def handle_continue(id, _) do
+  def handle_continue(game_id, _) do
     game =
-      from(g in Game, where: g.id == ^id)
+      from(g in Game, where: g.id == ^game_id)
       |> Repo.one()
       |> Repo.preload(:moves)
 

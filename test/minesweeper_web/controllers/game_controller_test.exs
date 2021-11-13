@@ -9,11 +9,12 @@ defmodule MinesweeperWeb.GameControllerTest do
   import Minesweeper.Factory
   import Minesweeper.TestUtils
 
-  test "POST /api/games to start a game", %{conn: conn, now: now} do
+  test "POST /api/games starts a game", %{conn: conn, now: now} do
     conn =
       post(conn, "/api/games", width: 30, height: 16, number_of_bombs: 99, first_move: [2, 3])
 
     body = json_response(conn, 201)
+    assert count_records() == %{Game => 1, Move => 1}
 
     assert %{
              "id" => id,
@@ -94,12 +95,28 @@ defmodule MinesweeperWeb.GameControllerTest do
            }
   end
 
-  test "POST /api/games/:id/moves to play in a game", %{conn: conn, now: now} do
+  test "POST /api/games cannot start a game with invalid data", %{conn: conn} do
+    conn = post(conn, "/api/games", height: 0, number_of_bombs: "foo", first_move: [1])
+
+    body = json_response(conn, 422)
+    assert count_records() == %{Game => 0, Move => 0}
+
+    assert_validation_errors(body, [
+      %{"path" => "/width", "message" => "can't be blank"},
+      %{"path" => "/height", "message" => "must be greater than or equal to 2"},
+      %{"path" => "/number_of_bombs", "message" => "is invalid"},
+      %{"path" => "/first_move", "message" => "is not a column and row pair"}
+    ])
+  end
+
+  test "POST /api/games/:id/moves plays a move in a game", %{conn: conn, now: now} do
     game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+    assert count_records() == %{Game => 1, Move => 0}
 
     conn = post(conn, "/api/games/#{game.id}/moves", position: [1, 1])
 
     body = json_response(conn, 201)
+    assert count_records() == %{Game => 1, Move => 1}
 
     assert %{"id" => id, "played_at" => played_at_str} = body
     assert id =~ uuid_regexp()
@@ -129,7 +146,7 @@ defmodule MinesweeperWeb.GameControllerTest do
            }
   end
 
-  test "POST /api/games/:id/moves to win the game", %{conn: conn, now: now} do
+  test "POST /api/games/:id/moves can win the game", %{conn: conn, now: now} do
     game = insert(:game, [width: 5, height: 5, bombs: [[1, 5], [2, 4], [2, 5]]], returning: [:id])
     insert(:move, game: game, position: [1, 2])
 
@@ -164,5 +181,19 @@ defmodule MinesweeperWeb.GameControllerTest do
              position: [1, 4],
              played_at: played_at
            }
+  end
+
+  test "POST /api/games/:id/moves cannot play a move with invalid data", %{conn: conn} do
+    game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+    assert count_records() == %{Game => 1, Move => 0}
+
+    conn = post(conn, "/api/games/#{game.id}/moves", position: [0, 1])
+
+    body = json_response(conn, 422)
+    assert count_records() == %{Game => 1, Move => 0}
+
+    assert_validation_errors(body, [
+      %{"path" => "/position", "message" => "is not a column and row pair"}
+    ])
   end
 end
