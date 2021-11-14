@@ -116,6 +116,11 @@ defmodule Minesweeper.GameServerTest do
   test "lose the game", %{now: now} do
     bombs = [[1, 2]]
 
+    # ┌───┐
+    # │   │
+    # │*  │
+    # │   │
+    # └───┘
     game =
       insert(
         :game,
@@ -123,10 +128,20 @@ defmodule Minesweeper.GameServerTest do
         returning: [:id]
       )
 
+    # ┌───┐
+    # │x  │ x = 1
+    # │*  │
+    # │   │
+    # └───┘
     insert(:move, game: game, position: [1, 1])
 
     assert :ok = GameServer.start_link(game.id)
 
+    # ┌───┐
+    # │x  │ x = 1
+    # │y  │ y = *
+    # │   │
+    # └───┘
     assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
              GameServer.play(game.id, [1, 2])
 
