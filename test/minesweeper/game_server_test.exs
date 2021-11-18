@@ -4,6 +4,7 @@ defmodule Minesweeper.GameServerTest do
   import Minesweeper.Factory
   import Minesweeper.TestUtils
 
+  alias Ecto.UUID
   alias Minesweeper.Game
   alias Minesweeper.GameServer
   alias Minesweeper.Move
@@ -14,11 +15,11 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 3, height: 3, bombs: bombs, moves: []],
+        [width: 3, height: 3, bombs: bombs],
         returning: [:id]
       )
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
              GameServer.play(game.id, [1, 1])
@@ -59,7 +60,7 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 3, height: 3, bombs: bombs, moves: []],
+        [width: 3, height: 3, bombs: bombs],
         returning: [:id]
       )
 
@@ -71,7 +72,7 @@ defmodule Minesweeper.GameServerTest do
     insert(:move, game: game, position: [1, 1])
     insert(:move, game: game, position: [1, 3])
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     # ┌───┐
     # │x1z│ x == 1
@@ -124,7 +125,7 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 3, height: 3, bombs: bombs, moves: []],
+        [width: 3, height: 3, bombs: bombs],
         returning: [:id]
       )
 
@@ -135,7 +136,7 @@ defmodule Minesweeper.GameServerTest do
     # └───┘
     insert(:move, game: game, position: [1, 1])
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     # ┌───┐
     # │x  │ x = 1
@@ -182,7 +183,7 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 5, height: 5, bombs: bombs, moves: []],
+        [width: 5, height: 5, bombs: bombs],
         returning: [:id]
       )
 
@@ -195,7 +196,7 @@ defmodule Minesweeper.GameServerTest do
     # └─────┘
     insert(:move, game: game, position: [1, 2])
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     # ┌─────┐
     # │00000│ b = 3
@@ -247,11 +248,11 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 5, height: 5, bombs: bombs, moves: []],
+        [width: 5, height: 5, bombs: bombs],
         returning: [:id]
       )
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     # ┌─────┐
     # │00000│ a = 0
@@ -359,7 +360,7 @@ defmodule Minesweeper.GameServerTest do
     game =
       insert(
         :game,
-        [width: 5, height: 5, bombs: bombs, moves: []],
+        [width: 5, height: 5, bombs: bombs],
         returning: [:id]
       )
 
@@ -399,7 +400,7 @@ defmodule Minesweeper.GameServerTest do
     # └─────┘
     insert(:move, game: game, position: [5, 4])
 
-    assert :ok = GameServer.start_link(game.id)
+    assert {:ok, _} = GameServer.start_link(game.id)
 
     # ┌─────┐
     # │00000│ e = 0
@@ -437,5 +438,77 @@ defmodule Minesweeper.GameServerTest do
              created_at: game.created_at,
              updated_at: updated_game.updated_at
            }
+  end
+
+  test "start an existing game server" do
+    bombs = [[1, 2], [2, 1], [2, 2]]
+
+    game =
+      insert(
+        :game,
+        [width: 3, height: 3, bombs: bombs],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [1, 1])
+
+    assert {:ok, pid} = GameServer.start_link(game.id)
+    assert GameServer.start_link(game.id) == {:ok, pid}
+  end
+
+  @tag capture_log: true
+  test "cannot play in a non-existent game", _ do
+    Process.flag(:trap_exit, true)
+    assert {:ok, _} = GameServer.start_link(UUID.generate())
+    assert_receive {:EXIT, _, :game_not_found}
+  end
+
+  @tag capture_log: true
+  test "cannot play in a lost game", _ do
+    game =
+      insert(
+        :game,
+        [width: 3, height: 3, bombs: [[1, 1]], state: :loss],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [1, 1])
+
+    Process.flag(:trap_exit, true)
+    assert {:ok, _} = GameServer.start_link(game.id)
+    assert_receive {:EXIT, _, {:game_done, :loss}}
+  end
+
+  @tag capture_log: true
+  test "cannot play in a won game", _ do
+    game =
+      insert(
+        :game,
+        [width: 3, height: 3, bombs: [[1, 1]], state: :win],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [3, 3])
+
+    Process.flag(:trap_exit, true)
+    assert {:ok, _} = GameServer.start_link(game.id)
+    assert_receive {:EXIT, _, {:game_done, :win}}
+  end
+
+  test "cannot play outside the board" do
+    bombs = [[1, 2], [2, 1], [2, 2]]
+
+    game =
+      insert(
+        :game,
+        [width: 3, height: 3, bombs: bombs],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [1, 1])
+
+    assert {:ok, _} = GameServer.start_link(game.id)
+
+    assert {:error, {:game_error, :position_outside_board}} = GameServer.play(game.id, [4, 3])
   end
 end

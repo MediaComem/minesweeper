@@ -4,8 +4,8 @@ defmodule Minesweeper.MixProject do
   def project do
     [
       app: :minesweeper,
-      version: "0.1.0",
-      elixir: "~> 1.7",
+      version: "1.0.0",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
       compilers: [:phoenix] ++ Mix.compilers(),
@@ -39,17 +39,18 @@ defmodule Minesweeper.MixProject do
 
   defp project_dependencies do
     [
-      {:phoenix, "~> 1.5.12"},
+      {:phoenix, "~> 1.6.2"},
       {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.4"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 2.11"},
+      {:ecto_sql, "~> 3.7"},
+      {:postgrex, "~> 0.15.13"},
+      {:phoenix_html, "~> 3.1"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       # Development dependencies
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_reload, "~> 1.3", only: :dev},
       # Test dependencies
-      {:excoveralls, "~> 0.10", only: :test},
+      {:assert_html, "~> 0.1.2", only: :test},
+      {:excoveralls, "~> 0.14.4", only: :test},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:mix_test_watch, "~> 1.0", only: :test, runtime: false}
     ]

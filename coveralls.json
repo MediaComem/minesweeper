@@ -2,5 +2,6 @@
   "coverage_options": {
     "treat_no_relevant_lines_as_covered": true
   },
+  "custom_stop_words": ["apply\\(__MODULE__, which, \\[\\]\\)"],
   "print_summary": false
 }

@@ -1,6 +1,7 @@
 defmodule MinesweeperWeb.GameControllerTest do
   use MinesweeperWeb.ConnCase
 
+  alias Ecto.UUID
   alias Minesweeper.Game
   alias Minesweeper.Move
   alias Minesweeper.Repo
@@ -14,7 +15,7 @@ defmodule MinesweeperWeb.GameControllerTest do
       post(conn, "/api/games", width: 30, height: 16, number_of_bombs: 99, first_move: [2, 3])
 
     body = json_response(conn, 201)
-    assert count_records() == %{Game => 1, Move => 1}
+    assert_database_counts(%{Game => 1, Move => 1})
 
     assert %{
              "id" => id,
@@ -99,7 +100,7 @@ defmodule MinesweeperWeb.GameControllerTest do
     conn = post(conn, "/api/games", height: 0, number_of_bombs: "foo", first_move: [1])
 
     body = json_response(conn, 422)
-    assert count_records() == %{Game => 0, Move => 0}
+    assert_database_counts(%{})
 
     assert_validation_errors(body, [
       %{"path" => "/width", "message" => "can't be blank"},
@@ -109,14 +110,135 @@ defmodule MinesweeperWeb.GameControllerTest do
     ])
   end
 
+  test "GET /api/games/:id shows an ongoing game", %{conn: conn} do
+    game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+    insert(:move, game: game, position: [1, 1])
+    assert_database_counts(%{Game => 1, Move => 1})
+
+    conn = get(conn, "/api/games/#{game.id}")
+
+    body = json_response(conn, 200)
+    assert_database_counts(%{Game => 1, Move => 1})
+
+    assert body == %{
+             "id" => game.id,
+             "width" => 3,
+             "height" => 3,
+             "number_of_bombs" => length(game.bombs),
+             "state" => "ongoing",
+             "created_at" => DateTime.to_iso8601(game.created_at),
+             "moves" => [
+               %{"position" => [1, 1], "uncovered" => [[[1, 1], 3]]}
+             ]
+           }
+  end
+
+  test "GET /api/games/:id shows a lost game", %{conn: conn} do
+    game =
+      insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]], state: :loss],
+        returning: [:id]
+      )
+
+    insert(:move, game: game, position: [1, 1])
+    insert(:move, game: game, position: [2, 1])
+
+    assert_database_counts(%{Game => 1, Move => 2})
+
+    conn = get(conn, "/api/games/#{game.id}")
+
+    body = json_response(conn, 200)
+    assert_database_counts(%{Game => 1, Move => 2})
+
+    assert body == %{
+             "id" => game.id,
+             "width" => 3,
+             "height" => 3,
+             "bombs" => [[1, 2], [2, 1], [2, 2]],
+             "number_of_bombs" => length(game.bombs),
+             "state" => "loss",
+             "created_at" => DateTime.to_iso8601(game.created_at),
+             "moves" => [
+               %{"position" => [1, 1], "uncovered" => [[[1, 1], 3]]},
+               %{"position" => [2, 1]}
+             ]
+           }
+  end
+
+  test "GET /api/games/:id shows a won game", %{conn: conn} do
+    game = insert(:game, [width: 3, height: 3, bombs: [[1, 1]], state: :win], returning: [:id])
+    insert(:move, game: game, position: [2, 1])
+    insert(:move, game: game, position: [3, 3])
+    assert_database_counts(%{Game => 1, Move => 2})
+
+    conn = get(conn, "/api/games/#{game.id}")
+
+    body = json_response(conn, 200)
+    assert_database_counts(%{Game => 1, Move => 2})
+
+    assert body == %{
+             "id" => game.id,
+             "width" => 3,
+             "height" => 3,
+             "bombs" => [[1, 1]],
+             "number_of_bombs" => length(game.bombs),
+             "state" => "win",
+             "created_at" => DateTime.to_iso8601(game.created_at),
+             "moves" => [
+               %{"position" => [2, 1], "uncovered" => [[[2, 1], 1]]},
+               %{
+                 "position" => [3, 3],
+                 "uncovered" => [
+                   [[1, 2], 1],
+                   [[1, 3], 0],
+                   [[2, 2], 1],
+                   [[2, 3], 0],
+                   [[3, 1], 0],
+                   [[3, 2], 0],
+                   [[3, 3], 0]
+                 ]
+               }
+             ]
+           }
+  end
+
+  test "GET /api/games/:id cannot find a game with an invalid ID", %{conn: conn} do
+    insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+    assert_database_counts(%{Game => 1})
+
+    conn = get(conn, "/api/games/foo")
+
+    body = json_response(conn, 404)
+    assert_database_counts(%{Game => 1})
+
+    assert body == %{
+             "code" => "resource_not_found",
+             "resource" => "game"
+           }
+  end
+
+  test "GET /api/games/:id cannot show a non-existing game", %{conn: conn} do
+    insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
+    assert_database_counts(%{Game => 1})
+
+    conn = get(conn, "/api/games/#{UUID.generate()}")
+
+    body = json_response(conn, 404)
+    assert_database_counts(%{Game => 1})
+
+    assert body == %{
+             "code" => "resource_not_found",
+             "resource" => "game"
+           }
+  end
+
   test "POST /api/games/:id/moves plays a move in a game", %{conn: conn, now: now} do
     game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
-    assert count_records() == %{Game => 1, Move => 0}
+    assert_database_counts(%{Game => 1})
 
     conn = post(conn, "/api/games/#{game.id}/moves", position: [1, 1])
 
     body = json_response(conn, 201)
-    assert count_records() == %{Game => 1, Move => 1}
+    assert_database_counts(%{Game => 1, Move => 1})
 
     assert %{"id" => id, "played_at" => played_at_str} = body
     assert id =~ uuid_regexp()
@@ -185,15 +307,45 @@ defmodule MinesweeperWeb.GameControllerTest do
 
   test "POST /api/games/:id/moves cannot play a move with invalid data", %{conn: conn} do
     game = insert(:game, [width: 3, height: 3, bombs: [[1, 2], [2, 1], [2, 2]]], returning: [:id])
-    assert count_records() == %{Game => 1, Move => 0}
+    assert_database_counts(%{Game => 1})
 
     conn = post(conn, "/api/games/#{game.id}/moves", position: [0, 1])
 
     body = json_response(conn, 422)
-    assert count_records() == %{Game => 1, Move => 0}
+    assert_database_counts(%{Game => 1})
 
     assert_validation_errors(body, [
       %{"path" => "/position", "message" => "is not a column and row pair"}
     ])
+  end
+
+  test "POST /api/games/:id/moves cannot play a move in an non-existent game", %{conn: conn} do
+    assert_database_counts(%{})
+
+    conn = post(conn, "/api/games/#{UUID.generate()}/moves", position: [1, 1])
+
+    body = json_response(conn, 404)
+    assert_database_counts(%{})
+
+    assert body == %{
+             "code" => "resource_not_found",
+             "resource" => "game"
+           }
+  end
+
+  test "POST /api/games/:id/moves cannot play a move in a completed game", %{conn: conn} do
+    game = insert(:game, [width: 3, height: 3, bombs: [[1, 1]], state: :loss], returning: [:id])
+    insert(:move, game: game, position: [1, 1])
+    assert_database_counts(%{Game => 1, Move => 1})
+
+    conn = post(conn, "/api/games/#{game.id}/moves", position: [1, 1])
+
+    body = json_response(conn, 422)
+    assert_database_counts(%{Game => 1, Move => 1})
+
+    assert body == %{
+             "code" => "game_done",
+             "state" => "loss"
+           }
   end
 end

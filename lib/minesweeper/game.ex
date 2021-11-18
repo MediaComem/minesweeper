@@ -63,6 +63,11 @@ defmodule Minesweeper.Game do
     end)
   end
 
+  def board_contains?(%Game{width: width, height: height}, [col, row])
+      when is_column(col) and is_row(row) do
+    col <= width && row <= height
+  end
+
   def shallow(game) do
     %__MODULE__{game | moves: %__MODULE__{}.moves}
   end

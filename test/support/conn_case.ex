@@ -18,12 +18,14 @@ defmodule MinesweeperWeb.ConnCase do
   use ExUnit.CaseTemplate
 
   alias Minesweeper.Repo
+  alias Phoenix.HTML
 
   import Ecto.Query, only: [from: 2]
 
   using do
     quote do
-      # Import conveniences for testing with connections
+      # Import conveniences for testing with connections and views
+      import AssertHTML
       import Plug.Conn
       import Phoenix.ConnTest
       import MinesweeperWeb.ConnCase
@@ -47,14 +49,22 @@ defmodule MinesweeperWeb.ConnCase do
 
   def assert_validation_errors(%{"errors" => actual_errors} = body, expected_errors) do
     assert %{body | "errors" => sort_validation_errors(actual_errors)} ==
-             %{"errors" => sort_validation_errors(expected_errors)}
+             %{"code" => "invalid_data", "errors" => sort_validation_errors(expected_errors)}
   end
 
-  def count_records do
-    {:ok, modules} = :application.get_key(:minesweeper, :modules)
+  def assert_database_counts(expected_counts) do
+    assert Map.merge(
+             all_schemas() |> Enum.reduce(%{}, fn schema, acc -> Map.put(acc, schema, 0) end),
+             expected_counts
+           ) == count_database_records()
+  end
 
-    modules
-    |> Enum.filter(&({:__schema__, 1} in &1.__info__(:functions)))
+  def escape_html(value) when is_binary(value) do
+    value |> HTML.html_escape() |> HTML.safe_to_string()
+  end
+
+  defp count_database_records() do
+    all_schemas()
     |> Enum.map(fn schema ->
       {schema, Task.async(fn -> Repo.one(from r in schema, select: count(r.id)) end)}
     end)
@@ -63,20 +73,13 @@ defmodule MinesweeperWeb.ConnCase do
   end
 
   defp sort_validation_errors(errors) do
-    Enum.sort(errors, fn err1, err2 ->
-      compare(err1, err2, ["path", "message"])
-    end)
+    errors |> Enum.sort_by(& &1["path"]) |> Enum.sort_by(& &1["message"])
   end
 
-  defp compare(_map1, _map2, []) do
-    true
-  end
+  defp all_schemas() do
+    {:ok, modules} = :application.get_key(:minesweeper, :modules)
 
-  defp compare(map1, map2, [property | rest]) do
-    if map1[property] == map2[property] do
-      compare(map1, map2, rest)
-    else
-      map1[property] < map2[property]
-    end
+    modules
+    |> Enum.filter(&({:__schema__, 1} in &1.__info__(:functions)))
   end
 end

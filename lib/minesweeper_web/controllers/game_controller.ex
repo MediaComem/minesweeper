@@ -2,21 +2,25 @@ defmodule MinesweeperWeb.GameController do
   use MinesweeperWeb, :controller
 
   alias Minesweeper
-  alias Minesweeper.Repo
   import Ecto.Changeset
   import Minesweeper.Board, only: [is_column: 1, is_row: 1]
 
   @move_params_type %{id: :string, position: {:array, :integer}}
 
-  action_fallback ApiFallbackController
+  action_fallback FallbackController
 
   def create(conn, params) do
-    with {:ok, %{game: game, first_move: first_move}} <-
-           Minesweeper.start_new_game(params)
-           |> Repo.transaction() do
+    with {:ok, %{game: game, first_move: first_move}} <- Minesweeper.start_game(params) do
       conn
       |> put_status(:created)
       |> render("create.json", %{game: game, first_move: first_move})
+    end
+  end
+
+  def show(conn, %{"id" => id}) do
+    with {:ok, game} <- Minesweeper.find_game(id) do
+      conn
+      |> render("show.json", %{game: game})
     end
   end
 

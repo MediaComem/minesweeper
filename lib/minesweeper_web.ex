@@ -22,7 +22,7 @@ defmodule MinesweeperWeb do
       use Phoenix.Controller, namespace: MinesweeperWeb
 
       import Plug.Conn
-      alias MinesweeperWeb.ApiFallbackController
+      alias MinesweeperWeb.FallbackController
       alias MinesweeperWeb.Router.Helpers, as: Routes
     end
   end
@@ -51,12 +51,6 @@ defmodule MinesweeperWeb do
     end
   end
 
-  def channel do
-    quote do
-      use Phoenix.Channel
-    end
-  end
-
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
@@ -67,6 +61,12 @@ defmodule MinesweeperWeb do
 
       import MinesweeperWeb.ErrorHelpers
       alias MinesweeperWeb.Router.Helpers, as: Routes
+
+      def put_if(map, key, value, false), do: map
+      def put_if(map, key, value, true), do: Map.put(map, key, value)
+
+      def put_non_nil(map, _key, nil), do: map
+      def put_non_nil(map, key, value), do: Map.put(map, key, value)
     end
   end
 

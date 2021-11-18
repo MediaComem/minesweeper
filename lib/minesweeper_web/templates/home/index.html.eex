@@ -1,11 +1,11 @@
 <!-- Difficulty chooser -->
 <div x-data>
   <template x-if="!$store.game.params">
-    <div class="d-flex justify-content-center mt-5">
-      <button type="button" class="btn btn-lg btn-info me-2" @click="$store.game.configure({ width: 5, height: 5, number_of_bombs: 3 })">Piece of cake</button>
-      <button type="button" class="btn btn-lg btn-success me-2" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
-      <button type="button" class="btn btn-lg btn-warning me-2" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
-      <button type="button" class="btn btn-lg btn-danger" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
+    <div class="d-flex justify-content-center flex-wrap mt-5">
+      <button type="button" class="btn btn-lg btn-info mt-1 me-2" @click="$store.game.configure({ width: 5, height: 5, number_of_bombs: 3 })">Piece of cake</button>
+      <button type="button" class="btn btn-lg btn-success mt-1 me-2" @click="$store.game.configure({ width: 9, height: 9, number_of_bombs: 10 })">Beginner</button>
+      <button type="button" class="btn btn-lg btn-warning mt-1 me-2" @click="$store.game.configure({ width: 16, height: 16, number_of_bombs: 40 })">Intermediate</button>
+      <button type="button" class="btn btn-lg btn-danger mt-1" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
     </div>
   </template>
 </div>
@@ -51,7 +51,31 @@
       <p class="lead text-center text-info" x-data>Ready</p>
     </template>
     <template x-if="$store.game.state === 'ongoing'">
-      <p class="lead text-center text-info" x-data>Playing...</p>
+      <p class="lead text-center text-info" x-text="$store.game.elapsedTime"></p>
+    </template>
+    <template x-if="$store.game.state === 'configured' || $store.game.state === 'ongoing'">
+      <p class="lead text-center text-danger" x-data>
+        <span x-text="$store.game.remainingBombs"></span>
+        <template x-if="$store.game.remainingBombs === 1 || $store.game.remainingBombs === -1">
+          <span>bomb</span>
+        </template>
+        <template x-if="$store.game.remainingBombs !== 1 && $store.game.remainingBombs !== -1">
+          <span>bombs</span>
+        </template>
+        left
+      </p>
+    </template>
+    <template x-if="$store.game.state === 'configured'">
+      <p class="text-center text-muted">Click on a cell to start the game.</p>
+    </template>
+    <template x-if="$store.game.state === 'ongoing'">
+      <div class="col-6 offset-3">
+        <p class="text-center text-muted">
+          Revealed cells shows the number of adjacent bombs. Reveal all cells
+          without bombs to win. Right-click a cell to flag it as a potential
+          bomb.
+        </p>
+      </div>
     </template>
     <template x-if="$store.game.state === 'win'">
       <p class="lead text-center text-success" x-data>You win!</p>

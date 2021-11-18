@@ -1,4 +1,3 @@
-# TODO: shut down game server when game is done
 defmodule Minesweeper.GameServer do
   use GenServer
 
@@ -11,6 +10,7 @@ defmodule Minesweeper.GameServer do
   alias Minesweeper.Move
   alias Minesweeper.Repo
   alias Minesweeper.Rules
+  alias Minesweeper.Utils
 
   defmodule State do
     @type t :: %__MODULE__{
@@ -23,11 +23,7 @@ defmodule Minesweeper.GameServer do
   end
 
   def start_link(game_id) when is_binary(game_id) do
-    case GenServer.start_link(__MODULE__, game_id, name: {:global, {__MODULE__, game_id}}) do
-      {:ok, _} -> :ok
-      {:error, {:already_started, _}} -> :ok
-      {:error, error} -> {:error, error}
-    end
+    Utils.start_singleton_gen_server(__MODULE__, game_id)
   end
 
   def play(game_id, [col, row] = position)
@@ -44,33 +40,24 @@ defmodule Minesweeper.GameServer do
 
   @impl true
   def handle_continue(game_id, _) do
-    game =
-      from(g in Game, where: g.id == ^game_id)
-      |> Repo.one()
-      |> Repo.preload(:moves)
-
-    {enriched_moves, all_uncovered} =
-      Enum.reduce(game.moves, {[], []}, fn move, {moves, acc} ->
-        {:ok, {:ongoing, uncovered}} =
-          Rules.uncover(move.position, game.bombs, acc, {game.width, game.height})
-
-        {moves ++ [%Move{move | uncovered: uncovered}],
-         acc ++ Enum.map(uncovered, fn {pos, _} -> pos end)}
-      end)
-
-    {:noreply, %State{game: %Game{game | moves: enriched_moves}, uncovered: all_uncovered}}
+    case Repo.one(from(g in Game, where: g.id == ^game_id, preload: :moves)) do
+      nil -> {:stop, :game_not_found, nil}
+      %Game{state: :ongoing} = game -> {:noreply, initialize_state(game)}
+      %Game{state: state} -> {:stop, {:game_done, state}, nil}
+    end
   end
 
   @impl true
-  def handle_call({:play, position}, _from, state) do
+  def handle_call({:play, [col, row] = position}, _from, state)
+      when is_column(col) and is_row(row) do
     %State{
       game: %Game{width: width, height: height, bombs: bombs} = game,
       uncovered: uncovered_positions
     } = state
 
-    {:ok, result} = Rules.uncover(position, bombs, uncovered_positions, {width, height})
-
-    with {:ok, %{game: updated_game, move: created_move}} <- persist_move(game, position, result) do
+    with :ok <- validate_position(game, position),
+         {:ok, result} <- Rules.uncover(position, bombs, uncovered_positions, {width, height}),
+         {:ok, %{game: updated_game, move: created_move}} <- persist_move(game, position, result) do
       {:reply, {:ok, created_move},
        %State{
          state
@@ -80,6 +67,20 @@ defmodule Minesweeper.GameServer do
     else
       {:error, error} -> {:reply, {:error, error}, state}
     end
+  end
+
+  defp initialize_state(game) do
+    %Game{bombs: bombs, moves: moves, width: width, height: height} = game
+
+    {enriched_moves, all_uncovered} =
+      Enum.reduce(moves, {[], []}, fn move, {moves, acc} ->
+        {:ok, {:ongoing, uncovered}} = Rules.uncover(move.position, bombs, acc, {width, height})
+
+        {moves ++ [%Move{move | uncovered: uncovered}],
+         acc ++ Enum.map(uncovered, fn {pos, _} -> pos end)}
+      end)
+
+    %State{game: %Game{game | moves: enriched_moves}, uncovered: all_uncovered}
   end
 
   defp persist_move(game, position, {:ongoing, uncovered}) do
@@ -121,5 +122,13 @@ defmodule Minesweeper.GameServer do
       position: position,
       uncovered: uncovered
     }
+  end
+
+  defp validate_position(game, position) do
+    if Game.board_contains?(game, position) do
+      :ok
+    else
+      {:error, {:game_error, :position_outside_board}}
+    end
   end
 end
