@@ -1,31 +1,33 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
+# This file is responsible for configuring your application and its dependencies
+# with the aid of the Mix.Config module.
 #
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
+# This configuration file is loaded before any dependency and is restricted to
+# this project.
 
-# General application configuration
 use Mix.Config
 
 config :minesweeper,
   ecto_repos: [Minesweeper.Repo]
 
-# Configures the endpoint
+# Configure the web endpoint.
 config :minesweeper, MinesweeperWeb.Endpoint,
-  url: [host: "localhost"],
-  secret_key_base: "p8YThMZPmurfLQCjxnFTmi5MvjrsLI+SDTVQMGueB2feaBqNxaaDGEqaZ3sSKOoZ",
-  render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json), layout: false],
+  http: [port: 3000],
   pubsub_server: Minesweeper.PubSub,
-  live_view: [signing_salt: "g40Vdfqr"]
+  render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json), layout: false]
 
-# Configures Elixir's Logger
+# Configures Elixir's Logger.
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
+# Use Jason for JSON parsing in Phoenix.
 config :phoenix, :json_library, Jason
 
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+config_dir = Path.dirname(__ENV__.file)
+
+# Import environment specific config. This must remain at the bottom of this
+# file so it overrides the configuration defined above.
+import_config Path.join(config_dir, "#{Mix.env()}.exs")
+
+local_config_file = Path.join(config_dir, "local.exs")
+if File.exists?(local_config_file), do: import_config(local_config_file)

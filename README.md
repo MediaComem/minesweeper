@@ -1,20 +1,14 @@
 # Minesweeper
 
-To start your Phoenix server:
+A [minesweeper][minesweeper] game implemented with the [Phoenix web
+framework][phoenix] in [Elixir][elixir].
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+## Requirements
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+* [Elixir][elixir] 1.12+
+* [PostgreSQL][postgresql] 14+
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+[elixir]: https://elixir-lang.org
+[minesweeper]: https://en.wikipedia.org/wiki/Minesweeper_(video_game)
+[phoenix]: https://www.phoenixframework.org
+[postgresql]: https://www.postgresql.org
