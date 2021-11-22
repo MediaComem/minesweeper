@@ -39,11 +39,11 @@ defmodule Minesweeper.Config do
     coerce = Keyword.get(opts, :coerce, &Function.identity(&1))
 
     env_var_suffix =
-      Keyword.get(
-        opts,
-        :env,
+      if custom_suffix = Keyword.get(opts, :env) do
+        custom_suffix |> Atom.to_string() |> String.upcase()
+      else
         path |> Enum.map(&Atom.to_string/1) |> Enum.join("_") |> String.upcase()
-      )
+      end
 
     env_var = "MINESWEEPER_#{env_var_suffix}"
     env_value = System.get_env(env_var)
@@ -61,11 +61,14 @@ defmodule Minesweeper.Config do
       _ ->
         human_path = path |> Enum.map(&Atom.to_string/1) |> Enum.join(".")
 
+        human_module =
+          module |> Atom.to_string() |> String.split(".") |> Enum.drop(1) |> Enum.join(".")
+
         raise MissingValue, """
         #{description} is not set.
 
         Set the $#{env_var} environment variable or configure the
-        #{human_path} key of {module} in config/local.exs (see sample file
+        "#{human_path}" key of #{human_module} in config/local.exs (see sample file
         #config/local.sample.exs)
         """
     end
