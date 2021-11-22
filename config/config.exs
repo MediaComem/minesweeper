@@ -9,6 +9,9 @@ use Mix.Config
 config :minesweeper,
   ecto_repos: [Minesweeper.Repo]
 
+# Configure the database connection URL.
+config :minesweeper, Minesweeper.Repo, url: "ecto://minesweeper@localhost/minesweeper"
+
 # Configure the web endpoint.
 config :minesweeper, MinesweeperWeb.Endpoint,
   http: [port: 3000],
