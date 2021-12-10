@@ -27,16 +27,16 @@ module.exports = (env, options) => {
         },
         {
           test: /\.[s]?css$/,
-          use: [
-            MiniCssExtractPlugin.loader,
-            'css-loader'
-          ],
+          use: [MiniCssExtractPlugin.loader, 'css-loader']
         }
       ]
+    },
+    performance: {
+      maxEntrypointSize: 512000
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: '../css/app.css' }),
       new CopyWebpackPlugin({ patterns: [{ from: 'static/', to: '../' }] })
     ]
-  }
+  };
 };
