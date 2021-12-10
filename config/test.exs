@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure the database connection.
 config :minesweeper, Minesweeper.Repo, pool: Ecto.Adapters.SQL.Sandbox

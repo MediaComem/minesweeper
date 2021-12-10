@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure the web endpoint.
 config :minesweeper, MinesweeperWeb.Endpoint,

@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # Configure the database connection URL (format is
 # "ecto://<username>[:<password>]@<host>[:<port>]/<database-name>").
