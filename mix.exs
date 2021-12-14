@@ -66,6 +66,7 @@ defmodule Minesweeper.MixProject do
     [
       setup: ["deps.get", "ecto.setup", "cmd npm ci --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "frontend.install": ["cmd ./scripts/install-frontend.sh"],
       reset: ["ecto.drop", "ecto.setup"],
       "reset.test": ["reset"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
