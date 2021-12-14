@@ -11,10 +11,12 @@ import Config
 config :minesweeper, Minesweeper.Repo,
   url:
     if(config_env() != :test,
-      # This is the production database URL:
+      # This is the production database URL. You can override it at runtime with
+      # the $MINESWEEPER_DATABASE_URL environment variable.
       do: "ecto://minesweeper:changeme@localhost/minesweeper",
-      # Use a separate test database URL (to avoid overwriting production data
-      # during tests):
+      # This is a separate test database URL to avoid overwriting
+      # development/production data during tests. You only need to configure
+      # this if you want to run the automated tests.
       else: "ecto://minesweeper:changeme@localhost/minesweeper-test"
     )
 
@@ -23,6 +25,9 @@ config :minesweeper, MinesweeperWeb.Endpoint,
   # The secret key base is used as a base to generate secrets for encrypting and
   # signing data. For example, cookies and tokens are signed by default. This
   # should be a long random string.
+  #
+  # You can override it at runtime with the $MINESWEEPER_SECRET_KEY_BASE
+  # environment variable.
   #
   # Run "mix phx.gen.secret" at the root of this repository to generate a
   # suitable value for the secret key base.

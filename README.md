@@ -10,13 +10,12 @@ A [minesweeper][minesweeper] game implemented with:
 
 - [Requirements](#requirements)
 - [Initial setup](#initial-setup)
-- [(Optionally) run automated tests](#optionally-run-automated-tests)
-- [(Optionally) run the application in development mode](#optionally-run-the-application-in-development-mode)
+- [Run the automated tests](#run-the-automated-tests)
+- [Run the application in development mode](#run-the-application-in-development-mode)
 - [Run the application in production mode](#run-the-application-in-production-mode)
-- [Instructions](#instructions)
-- [Troubleshooting](#troubleshooting)
-- [Notes](#notes)
+- [Updating](#updating)
 - [Configuration](#configuration)
+  - [Environment variables](#environment-variables)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -49,6 +48,9 @@ Additionally, to compile the frontend application, you will need:
   Shall the new role be allowed to create databases? (y/n) n
   Shall the new role be allowed to create more new roles? (y/n) n
   ```
+
+  > You should answer no to all questions. The `minesweeper` user should have no
+  > special privileges.
 * Create a PostgreSQL database named `minesweeper` and owned by the
   `minesweeper` user:
 
@@ -82,18 +84,43 @@ Additionally, to compile the frontend application, you will need:
   ```bash
   $> mix frontend.install
   ```
-* Create a local configuration file (which will be ignored by Git):
+* Configure the application. **You can do this in one of two ways:**
 
-  ```bash
-  cp config/local.sample.exs config/local.exs
-  ```
-* Edit `config/local.exs` with your favorite editor. Read the instructions it
-  contains and fill in the database connection URL and web endpoint settings.
+  * **Either** create a local configuration file (ignored by Git) based on the
+    provided sample:
 
-  > If you want to run the automated tests later, you will need two databases
-  > and two database connection URLs: one for production and one for testing
-  > (the databases could be named `minesweeper` and `minesweeper-test`, for
-  > example).
+    ```bash
+    cp config/local.sample.exs config/local.exs
+    ```
+
+    Edit `config/local.exs` with your favorite editor:
+
+    ```bash
+    nano config/local.exs
+    ```
+
+    Read the instructions contained in the file and fill in the database
+    connection URL and web endpoint settings.
+
+    > Configuration parameters provided this way will be bundled in the
+    > compiled production release.
+  * **Or** set the [documented environment variables](#environment-variables),
+    for example:
+
+    ```bash
+    export MINESWEEPER_DATABASE_URL="ecto://minesweeper:mysecretpassword@localhost:5432/minesweeper"
+    export MINESWEEPER_SECRET_KEY_BASE="mysecretkey"
+    ```
+
+    > Configuration parameters provided this way are only valid in the
+    > shell/SSH session where you run these commands. You will need to run them
+    > again in each new shell or add them to your shell's startup configuration
+    > file (e.g. `.bash_profile`). When using a process manager like Systemd,
+    > you will need to tell Systemd to provide these environment variables.
+
+  > You can use both the local configuration file and environment variables, in
+  > which case the environment variables specified at runtime will always
+  > override the corresponding settings in the configuration file.
 * Migrate the production database:
 
   ```bash
@@ -102,7 +129,10 @@ Additionally, to compile the frontend application, you will need:
 
 
 
-## (Optionally) run automated tests
+## Run the automated tests
+
+Follow these instructions to execute the project's [automated test
+suite][automated-tests]:
 
 * Create a separate PostgreSQL test database named `minesweeper-test` also owned
   by the `minesweeper` user:
@@ -132,12 +162,17 @@ Additionally, to compile the frontend application, you will need:
   $> MIX_ENV=test mix test
   ```
 
+You should see no errors. Every green dot represents a passed test.
+
+> For more information, read the [tests' source code in the `test`
+> directory](./test).
 
 
-## (Optionally) run the application in development mode
 
-To check that the application is working at this point, you can run it in
-development mode:
+## Run the application in development mode
+
+You can run the application in development mode (with live reload) using the
+following command:
 
 ```bash
 $> mix phx.server
@@ -202,17 +237,51 @@ $> MINESWEEPER_HTTP_PORT=3001 _build/prod/rel/minesweeper/bin/minesweeper start
 
 
 
+## Updating
+
+To update the application after getting the latest changes, execute the
+following commands in the application's directory:
+
+```bash
+# Update backend & frontend dependencies, and migrate the database:
+$> mix do deps.get, frontend.update
+
+# Apply any pending database migrations.
+$> mix ecto.migrate
+
+# Rebuild the frontend in production mode and reassemble the Mix release:
+$> MIX_ENV=prod mix do frontend.build, phx.digest, release --overwrite
+```
+
+You may then restart the application.
+
+
+
 ## Configuration
 
-| Environment variable          | Module config                                           | Default value                              | Description                                                                                                                                                 |
-| :---------------------------- | :------------------------------------------------------ | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MINESWEEPER_DATABASE_URL`    | `url` property of `Minesweeper.Repo`                    | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)                                                        |
-| `MINESWEEPER_HTTP_PORT`       | `http.port` property of `MinesweeperWeb.Endpoint`       | `3000`                                     | The port the HTTP server will listen on.                                                                                                                    |
-| `MINESWEEPER_SECRET_KEY_BASE` | `secret_key_base` property of `MinesweeperWeb.Endpoint` | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). Use `mix phx.gen.secret` to generate a strong key. |
+You can configure the application in two ways:
+
+* Create a `config/local.exs` file in the application's directory (see the
+  `config/local.sample.exs` sample file).
+* Use the environment variables documented below.
+
+You may also use both. The parameters in the local configuration file are
+bundled in the compiled production release. Note that the environment variables,
+if present at runtime, will always take precedence and override the
+corresponding parameters from the configuration file.
+
+### Environment variables
+
+| Environment variable          | Default value                              | Description                                                                                                                                                 |
+| :---------------------------- | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MINESWEEPER_DATABASE_URL`    | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)                                                        |
+| `MINESWEEPER_HTTP_PORT`       | `3000`                                     | The port the HTTP server will listen on.                                                                                                                    |
+| `MINESWEEPER_SECRET_KEY_BASE` | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). Use `mix phx.gen.secret` to generate a strong key. |
 
 
 
 [alpinejs]: https://alpinejs.dev
+[automated-tests]: https://en.wikipedia.org/wiki/Test_automation
 [elixir]: https://elixir-lang.org
 [erlang]: https://www.erlang.org
 [minesweeper]: https://en.wikipedia.org/wiki/Minesweeper_(video_game)
