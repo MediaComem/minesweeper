@@ -7,9 +7,9 @@ previous exercices to deploy a new application from scratch on your server.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [The goal](#the-goal)
-  - [Legend](#legend)
-  - [The application](#the-application)
-    - [:books: What the hell is Elixir, Erlang/OTP, PostgreSQL?](#books-what-the-hell-is-elixir-erlangotp-postgresql)
+- [Legend](#legend)
+- [The application](#the-application)
+  - [:books: What the hell are Elixir, Erlang/OTP and PostgreSQL?](#books-what-the-hell-are-elixir-erlangotp-and-postgresql)
 - [:warning: Before starting the exercise](#warning-before-starting-the-exercise)
 - [:warning: A note about the project's documentation](#warning-a-note-about-the-projects-documentation)
 - [Getting started](#getting-started)
@@ -17,7 +17,7 @@ previous exercices to deploy a new application from scratch on your server.
   - [:exclamation: Install the requirements](#exclamation-install-the-requirements)
     - [:question: Check that everything has been correctly installed](#question-check-that-everything-has-been-correctly-installed)
   - [:exclamation: Perform the initial setup](#exclamation-perform-the-initial-setup)
-    - [:books: What sorcery is this?](#books-what-sorcery-is-this)
+  - [:books: What sorcery is this?](#books-what-sorcery-is-this)
   - [:question: Optional: run the automated tests](#question-optional-run-the-automated-tests)
   - [:question: Optional: run the application in development mode](#question-optional-run-the-application-in-development-mode)
   - [:exclamation: Run the application in production mode](#exclamation-run-the-application-in-production-mode)
@@ -25,8 +25,8 @@ previous exercices to deploy a new application from scratch on your server.
 - [:exclamation: Serve the application through nginx](#exclamation-serve-the-application-through-nginx)
 - [:exclamation: Provision a TLS certificate](#exclamation-provision-a-tls-certificate)
 - [:exclamation: Set up an automated deployment with Git hooks](#exclamation-set-up-an-automated-deployment-with-git-hooks)
-  - [:gem: Allowng your user to restart the service without a password](#gem-allowng-your-user-to-restart-the-service-without-a-password)
-    - [:space_invader: Allow the dedicated `minesweeper` Unix user to control the Systemd service](#space_invader-allow-the-dedicated-minesweeper-unix-user-to-control-the-systemd-service)
+  - [:gem: Allowing your user to restart the service without a password](#gem-allowing-your-user-to-restart-the-service-without-a-password)
+  - [:space_invader: Allowing the dedicated `minesweeper` Unix user to control the Systemd service](#space_invader-allowing-the-dedicated-minesweeper-unix-user-to-control-the-systemd-service)
   - [:exclamation: Test the automated deployment](#exclamation-test-the-automated-deployment)
 - [:boom: Troubleshooting](#boom-troubleshooting)
   - [:boom: `Could not find a Mix.Project`](#boom-could-not-find-a-mixproject)
@@ -38,6 +38,7 @@ previous exercices to deploy a new application from scratch on your server.
   - [:boom: `502 Bad Gateway`](#boom-502-bad-gateway)
   - [:boom: I forgot to fork the Minesweeper repository and I have already cloned it](#boom-i-forgot-to-fork-the-minesweeper-repository-and-i-have-already-cloned-it)
   - [:boom: I don't remember the password I used for the `minesweeper` PostgreSQL user](#boom-i-dont-remember-the-password-i-used-for-the-minesweeper-postgresql-user)
+  - [:boom: System debugging](#boom-system-debugging)
   - [:boom: PostgreSQL debugging](#boom-postgresql-debugging)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
