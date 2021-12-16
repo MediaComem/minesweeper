@@ -12,7 +12,7 @@ previous exercices to deploy a new application from scratch on your server.
   - [:books: What the hell are Elixir, Erlang/OTP and PostgreSQL?](#books-what-the-hell-are-elixir-erlangotp-and-postgresql)
 - [:warning: Before starting the exercise](#warning-before-starting-the-exercise)
 - [:warning: A note about the project's documentation](#warning-a-note-about-the-projects-documentation)
-- [Getting started](#getting-started)
+- [:exclamation: Getting started](#exclamation-getting-started)
   - [:exclamation: Fork the repository](#exclamation-fork-the-repository)
   - [:exclamation: Install the requirements](#exclamation-install-the-requirements)
     - [:question: Check that everything has been correctly installed](#question-check-that-everything-has-been-correctly-installed)
@@ -192,7 +192,7 @@ without understanding what you are doing in the context of the exercise.
 
 
 
-## Getting started
+## :exclamation: Getting started
 
 ### :exclamation: Fork the repository
 
