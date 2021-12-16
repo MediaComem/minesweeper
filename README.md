@@ -108,6 +108,7 @@ Additionally, to compile the backend and frontend, you will need:
 
     ```bash
     export MINESWEEPER_DATABASE_URL="ecto://minesweeper:mysecretpassword@localhost:5432/minesweeper"
+    export MINESWEEPER_HTTP_PORT=3000
     export MINESWEEPER_SECRET_KEY_BASE="mysecretkey"
     ```
 
@@ -178,8 +179,9 @@ $> mix phx.server
 ```
 
 The application runs on port 3000 by default. If that port is already in use,
-you can use the `$MINESWEEPER_HTTP_PORT` environment variable to use another
-port:
+you can use the `http.port` parameter in the local configuration file or the
+`$MINESWEEPER_HTTP_PORT` environment variable to switch to another port, for
+example:
 
 ```bash
 $> MINESWEEPER_HTTP_PORT=3001 mix phx.server
@@ -219,8 +221,9 @@ repository:
 _build/prod/rel/minesweeper/bin/minesweeper start
 ```
 
-Again, if port 3000 is already in use, you can use the `$MINESWEEPER_HTTP_PORT`
-environment variable to use another port:
+Again, if port 3000 is already in use, you can use the `http.port` parameter in
+the local configuration file or the `$MINESWEEPER_HTTP_PORT` environment
+variable to switch to another port, for example:
 
 ```bash
 $> MINESWEEPER_HTTP_PORT=3001 _build/prod/rel/minesweeper/bin/minesweeper start
@@ -270,11 +273,15 @@ corresponding parameters from the configuration file.
 
 ### Environment variables
 
-| Environment variable          | Default value                              | Description                                                                                                                                                 |
-| :---------------------------- | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MINESWEEPER_DATABASE_URL`    | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)                                                        |
-| `MINESWEEPER_HTTP_PORT`       | `3000`                                     | The port the HTTP server will listen on.                                                                                                                    |
-| `MINESWEEPER_SECRET_KEY_BASE` | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). Use `mix phx.gen.secret` to generate a strong key. |
+| Environment variable          | Default value                              | Description                                                                                              |
+| :---------------------------- | :----------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| `MINESWEEPER_DATABASE_URL`    | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)     |
+| `MINESWEEPER_HTTP_PORT`       | `3000`                                     | The port the HTTP server listens on.                                                                     |
+| `MINESWEEPER_SECRET_KEY_BASE` | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). |
+| `MINESWEEPER_URL`             | `http://localhost:3000`                    | The base URL at which the application is publicly available.                                             |
+
+> You can generate a strong secret key base by running the `mix phx.gen.secret`
+> command in the project's directory.
 
 
 

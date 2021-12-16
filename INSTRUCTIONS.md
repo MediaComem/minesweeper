@@ -149,7 +149,9 @@ deployment.
 
 **Your Azure server has limited memory (about 1GB of RAM).** Unfortunately, this
 may not be enough memory to run the MySQL database server, the PostgreSQL
-database server, PHP-FPM, the PHP todolist and the Minesweeper application.
+database server, PHP-FPM, the PHP todolist and the Minesweeper application,
+mainly because MySQL unfortunately consumes a lot of memory for such a small
+server.
 
 To be safe, you should temporarily stop and disable MySQL with the following
 commands:
@@ -159,7 +161,7 @@ $> sudo systemctl stop mysql
 $> sudo systemctl disable mysql
 ```
 
-> Note that this will temporarily break the PHP todolist.
+Note that this will temporarily break the PHP todolist.
 
 You can also stop, disable and remove the following programs which are not
 required for this course, saving some more memory:
@@ -471,11 +473,12 @@ systemd service, nginx configuration and automated deployment, you can manually
 run the application in development mode to make sure it works. The [project's
 README][readme] explains how to do this.
 
-You can set the `MINESWEEPER_HTTP_PORT` environment variable to `3001` for this
-simple test, as that is one of the ports that should be open in your server's
-firewall. Run the application on that port and visit http://W.X.Y.Z:3001 to
-check that it works (replacing `W.X.Y.Z` by your server's IP address). Stop the
-application by typing `Ctrl-C` **twice** once you are done.
+You can set the `http.port` parameter in the local configuration file or the
+`MINESWEEPER_HTTP_PORT` environment variable to `3001` for this simple test, as
+that is one of the ports that should be open in your server's firewall. Run the
+application on that port and visit http://W.X.Y.Z:3001 to check that it works
+(replacing `W.X.Y.Z` by your server's IP address). Stop the application by
+typing `Ctrl-C` **twice** once you are done.
 
 > :books: For your information, running the application in development mode will
 > use [Webpack], a static module bundler for JavaScript applications, to take
@@ -531,8 +534,9 @@ application instead of the PHP todolist.
 >   is not in your PATH, so you cannot use `which` to determine where it is, but
 >   it's easy to determine its absolute path by combining the path to the
 >   repository and the relative path to the script.
-> * :gem: You may need to set the `MINESWEEPER_HTTP_PORT` environment variable
->   to choose the port on which the application will listen. You can use the
+> * :gem: You may need to set the `http.port` parameter in the local
+>   configuration file or the `MINESWEEPER_HTTP_PORT` environment variable to
+>   choose the port on which the application will listen. You can use the
 >   publicly accessible 3001 port temporarily for testing, but you should use
 >   another free port that is not exposed to complete the exercise, since one of
 >   the requirements is to expose the application only through nginx.
@@ -814,8 +818,9 @@ If you see an error similar to this when running the application:
 
 It means that there is already an application or other process listening on the
 port Minesweeper is trying to listen on (port `3000` by default). You should use
-the `$MINESWEEPER_HTTP_PORT` environment variable to change the port, for
-example if you are trying to run the application in development mode:
+the `http.port` parameter in the local configuration file or the
+`$MINESWEEPER_HTTP_PORT` environment variable to change the port, for example if
+you are trying to run the application in development mode:
 
 ```bash
 $> MINESWEEPER_HTTP_PORT=4321 mix phx.server

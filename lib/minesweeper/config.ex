@@ -28,6 +28,10 @@ defmodule Minesweeper.Config do
     )
   end
 
+  def url!() do
+    env_config_value!(MinesweeperWeb.Endpoint, :url, desc: "Base URL", coerce: &parse_env_url/2)
+  end
+
   defp env_config_value!(module, key, opts)
        when is_list(opts) and is_atom(key) do
     env_config_value!(module, [key], opts)
@@ -89,6 +93,24 @@ defmodule Minesweeper.Config do
       :error ->
         raise """
         Environment variable $#{env_var} must be an integer between #{min} and #{max}.
+        """
+    end
+  end
+
+  defp parse_env_url(value, env_var) when is_binary(value) and is_binary(env_var) do
+    case URI.parse(value) do
+      %URI{scheme: scheme, host: host, port: port, path: path}
+      when scheme in ["http", "https"] and is_binary(host) and host != "" ->
+        [scheme: scheme, host: host, port: port, path: path]
+
+      %URI{host: host} when is_binary(host) and host != "" ->
+        raise """
+        Environment variable $#{env_var} must be an HTTP/S URL
+        """
+
+      %URI{host: host} when is_nil(host) or host == "" ->
+        raise """
+        Environment variable $#{env_var} must be an HTTP/S URL with a host component
         """
     end
   end

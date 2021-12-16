@@ -17,7 +17,11 @@ config :minesweeper, MinesweeperWeb.Endpoint,
   http: [port: 3000],
   pubsub_server: Minesweeper.PubSub,
   render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json), layout: false],
-  server: true
+  server: true,
+  url: [
+    host: "localhost",
+    port: 3000
+  ]
 
 # Configures Elixir's Logger.
 config :logger, :console,

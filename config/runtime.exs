@@ -7,7 +7,4 @@ config :minesweeper, Minesweeper.Repo, url: Minesweeper.Config.database_url!()
 config :minesweeper, MinesweeperWeb.Endpoint,
   http: [port: Minesweeper.Config.port!()],
   secret_key_base: Minesweeper.Config.secret_key_base!(),
-  url: [
-    host: "example.com",
-    port: 80
-  ]
+  url: Minesweeper.Config.url!()
