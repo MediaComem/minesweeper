@@ -6,24 +6,28 @@ previous exercices to deploy a new application from scratch on your server.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Legend](#legend)
 - [The goal](#the-goal)
+  - [Legend](#legend)
   - [The application](#the-application)
-- [:warning: Before starting the exercise :warning:](#warning-before-starting-the-exercise-warning)
+    - [:books: What the hell is Elixir, Erlang/OTP, PostgreSQL?](#books-what-the-hell-is-elixir-erlangotp-postgresql)
+- [:warning: Before starting the exercise](#warning-before-starting-the-exercise)
+- [:warning: A note about the project's documentation](#warning-a-note-about-the-projects-documentation)
 - [Getting started](#getting-started)
-  - [Fork the repository](#fork-the-repository)
-  - [Install the requirements](#install-the-requirements)
-  - [Perform the initial setup](#perform-the-initial-setup)
-  - [:ballot_box_with_check: Optional: run the automated tests](#ballot_box_with_check-optional-run-the-automated-tests)
-  - [:ballot_box_with_check: Optional: run the application in development mode](#ballot_box_with_check-optional-run-the-application-in-development-mode)
-  - [Run the application in production mode](#run-the-application-in-production-mode)
-- [Create a systemd service](#create-a-systemd-service)
-- [Serve the application through nginx](#serve-the-application-through-nginx)
-- [Provision a TLS certificate](#provision-a-tls-certificate)
-- [Set up an automated deployment with Git hooks](#set-up-an-automated-deployment-with-git-hooks)
-  - [:books: Allow your user to restart the service without a password](#books-allow-your-user-to-restart-the-service-without-a-password)
+  - [:exclamation: Fork the repository](#exclamation-fork-the-repository)
+  - [:exclamation: Install the requirements](#exclamation-install-the-requirements)
+    - [:question: Check that everything has been correctly installed](#question-check-that-everything-has-been-correctly-installed)
+  - [:exclamation: Perform the initial setup](#exclamation-perform-the-initial-setup)
+    - [:books: What sorcery is this?](#books-what-sorcery-is-this)
+  - [:question: Optional: run the automated tests](#question-optional-run-the-automated-tests)
+  - [:question: Optional: run the application in development mode](#question-optional-run-the-application-in-development-mode)
+  - [:exclamation: Run the application in production mode](#exclamation-run-the-application-in-production-mode)
+- [:exclamation: Create a systemd service](#exclamation-create-a-systemd-service)
+- [:exclamation: Serve the application through nginx](#exclamation-serve-the-application-through-nginx)
+- [:exclamation: Provision a TLS certificate](#exclamation-provision-a-tls-certificate)
+- [:exclamation: Set up an automated deployment with Git hooks](#exclamation-set-up-an-automated-deployment-with-git-hooks)
+  - [:gem: Allowng your user to restart the service without a password](#gem-allowng-your-user-to-restart-the-service-without-a-password)
     - [:space_invader: Allow the dedicated `minesweeper` Unix user to control the Systemd service](#space_invader-allow-the-dedicated-minesweeper-unix-user-to-control-the-systemd-service)
-  - [Test the automated deployment](#test-the-automated-deployment)
+  - [:exclamation: Test the automated deployment](#exclamation-test-the-automated-deployment)
 - [:boom: Troubleshooting](#boom-troubleshooting)
   - [:boom: `Could not find a Mix.Project`](#boom-could-not-find-a-mixproject)
   - [:boom: `Note no mix.exs was found in the current directory`](#boom-note-no-mixexs-was-found-in-the-current-directory)
@@ -40,31 +44,13 @@ previous exercices to deploy a new application from scratch on your server.
 
 
 
-## Legend
-
-This guide is annotated with the following icons:
-
-* :warning: **Critically important information for this exercise.**
-* :gem: Tips on this exercise, reminders about previous exercises, or
-  explanations about how this exercise differs from the previous one.
-* :ballot_box_with_check: *Optional steps that you can perform to ensure that
-  everything is working correctly, but which can be skipped because they are not
-  required to proceed.*
-* :books: *Additional information that you can read if you want to know more
-  about the commands and tools used during this exercise.*
-* :space_invader: More advanced tips on how to save some time.
-* :boom: Troubleshooting: help on how to fix common problems you might
-  encounter.
-
-
-
 ## The goal
 
-You must deploy the provided application in a similar way as the PHP todolist in
-previous exercises:
+You **MUST** deploy the provided application in a similar way as the PHP
+todolist in previous exercises:
 
-* Install the language(s) and database necessary to run the application, which
-  are not the same as for the PHP todolist.
+* Install the language(s) and database necessary to run the application (which
+  are different than for the PHP todolist).
 * Run the application as a systemd service.
 * Serve the application through nginx acting as a reverse proxy.
 * Provision a TLS certificate for the application and configure nginx to use it.
@@ -76,39 +62,67 @@ Additionally:
 * The application **MUST** restart automatically if your server is rebooted
   (i.e. your systemd service must be enabled).
 * The application **MUST** be accessible **only through nginx**. It **MUST NOT**
-  be exposed directly on a publicly accessible port. In the AWS virtual machines
-  used in this course, ports 3000 and 3001 are open for testing. Do not use
+  be exposed directly on a publicly accessible port. In the cloud servers used
+  in this course, ports 3000 and 3001 should be open for testing. **DO NOT** use
   these ports in the final setup.
 * Clients accessing the application over HTTP **MUST** be redirected to HTTPS.
+
+As an optional bonus challenge:
+
+* Create a dedicated Unix user (e.g. `minesweeper`) other than your personal
+  user (e.g. `john_doe`) to run the application.
+* This user must be a system user, not a login user. It should not
+  be able to log in with a password, although you can set up SSH public key
+  authentication for the automated deployment.
+* You must clone the project's repository with this user.
+* You must run the application as this user with systemd.
+* You must use the application's local configuration file instead of environment
+  variables (see its documentation), and you must set up file/directory
+  permissions so that only the dedicated user has access to the configuration
+  file (the `root` user will of course have access as well).
+
+### Legend
+
+Parts of this guide are annotated with the following icons:
+
+* :exclamation: This is a task you have to perform to complete the exercise.
+* :question: *This is an optional step that you can perform if you want to
+  ensure that everything is working correctly. But you can also skip it because
+  it is not necessary to complete it to proceed further.*
+* :warning: **Critically important information about the exercise.**
+* :gem: Tips on the exercise, reminders about previous exercises, or
+  explanations about how this exercise differs from the previous one.
+* :books: *Additional information that you can read if you want to know more
+  about the commands and tools used during this exercise.*
+* :space_invader: More advanced tips on how to save some time, or tips about the
+  bonus challenge.
+* :boom: Troubleshooting tips: how to fix common problems you might encounter.
 
 ### The application
 
 The application you must deploy is a [Minesweeper][minesweeper] web game. Its
 code is [available on GitHub][repo].
 
-> :books: This application uses:
+#### :books: What the hell is Elixir, Erlang/OTP, PostgreSQL?
 
-> * [Phoenix][phoenix], an [Elixir][elixir] web framework, for the backend.
->   * Elixir is a programming language based on [Erlang/OTP][erlang] which you
->     will also install.
-> * [Alpine.js][alpinejs], a [JavaScript][js] framework, for the frontend.
->   * You will also use [Node.js][node], a server-side JavaScript runtime, to
->     download JavaScript libraries.
-> * [PostgreSQL][postgres], an open source relational database.
->
-> You do not need to know the specifics of these technologies. Your goal is only
-> to deploy the application as indicated by the instructions, not to modify it.
+:books: The application uses the following technologies:
 
-:warning: The [application's README][readme] contains generic instructions on
-how to run the application. That README is generic: it is not written
-specifically for this exercise. The instructions on this page explain the
-exercise step-by-step, and you will need to use the instructions in the
-application's README at some point, but be careful not to blindly execute
-commands from it.
+* [Phoenix][phoenix], an [Elixir][elixir] web framework, for the backend.
+  * Elixir is a programming language based on [Erlang/OTP][erlang] which you
+    will also install.
+* [Alpine.js][alpinejs], a [JavaScript][js] framework, for the frontend.
+  * You will also use [Node.js][node], a server-side JavaScript runtime, to
+    download JavaScript libraries.
+* [PostgreSQL][postgres], an open source relational database.
+
+You do not need to know the specifics of these technologies. Your goal is only
+to deploy the application as indicated by the instructions. You will not need to
+modify it except for a very small change at the end to test your automated
+deployment.
 
 
 
-## :warning: Before starting the exercise :warning:
+## :warning: Before starting the exercise
 
 **Your Azure server has limited memory (RAM).** Unfortunately, there may not be
 enough memory to run the MySQL database server, the PostgreSQL database server,
@@ -141,9 +155,23 @@ $> sudo apt install inotify-tools
 
 
 
+## :warning: A note about the project's documentation
+
+The [project's README][readme] contains generic instructions on how to run the
+application. That README is generic: it is not written specifically for this
+exercise.
+
+The instructions on **this page** explain the exercise step-by-step.
+
+The instructions in the project's README will be useful to you at various
+points, but be careful not to blindly copy-paste and execute commands from it
+without understanding what you are doing in the context of the exercise.
+
+
+
 ## Getting started
 
-### Fork the repository
+### :exclamation: Fork the repository
 
 This exercise requires that you make changes to the application, when setting up
 the automated deployment with Git hooks.
@@ -154,13 +182,14 @@ account.
 in the application's README. This way you will have push access to your
 repository.
 
-### Install the requirements
+### :exclamation: Install the requirements
 
 You may want to start by making sure you have installed all the requirements
 described in the [project's README][readme] on your server:
 
-* **How to install Elixir:** the [Elixir website][elixir] provides very
-  straightforward installation instructions. You should look for installation
+* **How to install Elixir and Erlang/OTP:** the [Elixir website][elixir] gives
+  you very straightforward installation instructions to install both Elixir and
+  Erlang/OTP. You should look for installation
   instructions specific to Ubuntu, the Linux distribution used on your server.
 * **How to install Node.js:** there are several methods to install Node.js. One
   of the simplest is to use the [binary distributions provided by
@@ -173,10 +202,10 @@ described in the [project's README][readme] on your server:
   installation instructions specific to Ubuntu, the Linux distribution used on
   your server.
 
-You can then check that you have installed everything correctly:
+#### :question: Check that everything has been correctly installed
 
-* **Check your Elixir installation:** you can check that Elixir has been
-  correctly installed by displaying the version of the `elixir` command:
+* You can check that **Elixir has been correctly installed** by displaying the
+  version of the `elixir` command:
 
   ```bash
   $> elixir --version
@@ -195,8 +224,8 @@ You can then check that you have installed everything correctly:
   $> elixir --eval "IO.puts(1 + 2)"
   3
   ```
-* **Check your Node.js installation:** you can check that Node.js has been
-  correctly installed by displaying the version of the `node` command:
+* You can check that **Node.js has been correctly installed** by displaying the
+  version of the `node` command:
 
   ```bash
   $> node --version
@@ -213,8 +242,8 @@ You can then check that you have installed everything correctly:
   $> node -e 'console.log(1 + 2)'
   3
   ```
-* **Check your PostgreSQL installation:** you can check that PostgreSQL has been
-  correctly installed by displaying the version of the `psql` command:
+* You can check that **PostgreSQL has been correctly installed** by displaying
+  the version of the `psql` command:
 
   ```bash
   $> psql --version
@@ -262,110 +291,118 @@ You can then check that you have installed everything correctly:
   > port = 5432
   > ```
 
-### Perform the initial setup
+### :exclamation: Perform the initial setup
 
 You must perform the **initial setup** instructions indicated in the [project's
 README][readme].
 
-> :books: Here's some additional information on what you are doing:
->
-> * :books: The setup instructions use the `createuser` and `createdb` commands.
->   These commands are binaries that come with the PostgreSQL server and can be
->   used to manage PostgreSQL users and databases on the command line:
->
->   * The **`createuser --interactive --pwprompt minesweeper` command**
->     creates a PostgreSQL user named "minesweeper" and asks you to define a
->     password for that user. The application will use this PostgreSQL username
->     and password to connect to the database.
->   * The **`createdb --owner minesweeper minesweeper` command** creates
->     an empty PostgreSQL database named "minesweeper" and owned by the
->     "minesweeper" user. This is the database that the application will use.
->
->   This is equivalent to [part of the `todolist.sql`
->   script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L1-L8)
->   you executed when first deploying the PHP todolist.
->
->   If you prefer using SQL, you could instead connect to the database as the
->   `postgres` user (equivalent to MySQL's `root` user) with `sudo -u postgres
->   psql` and run equivalent [`CREATE
->   USER`](https://www.postgresql.org/docs/13/sql-createuser.html) and [`CREATE
->   DATABASE`](https://www.postgresql.org/docs/13/sql-createdatabase.html)
->   queries.
->
->   Note that on the command line, PostgreSQL uses [peer
->   authentication](https://www.postgresql.org/docs/13/auth-peer.html) based on
->   the Unix username by default. This is why the commands are prefixed with
->   `sudo -u postgres`, which executes them as the `postgres` Unix user. This
->   user was created when you installed PostgreSQL and has administrative
->   privileges on the entire PostgreSQL cluster. You can verify the existence of
->   this user with the command `cat /etc/passwd | grep postgres`.
-> * :books: The setup instructions use the **`mix` command**. [Mix][mix] is the
->   dependency manager and build tool of the [Elixir][elixir] ecosystem, much
->   like [Composer][composer] for [PHP][php] or [npm][npm] for [Node.js][node].
->
->   * The [**`mix deps.get` command**][mix-deps-get] is used to download all of
->     the Minesweeper Elixir application's dependencies, i.e. the Elixir/Erlang
->     libraries it requires to work, like the [Phoenix][phoenix] web framework.
->     Phoenix is a web framework written in [Elixir][elixir] much like
->     [Laravel][laravel] is a web framework written in [PHP][php].
->
->     The dependencies and which versions to install are [listed in the
->     application's `mix.exs` file][app-deps]. They are downloaded from
->     [Hex][hex], the package registry for the Elixir and Erlang ecosystems, and
->     saved into the `deps` directory.
->   * The [**`mix compile` command**][mix-compile] compiles the application's
->     Elixir source files from the `lib` and `test` directories into the
->     `_build` directory. This step is necessary because Elixir is a compiled
->     language which must be compiled to [BEAM][beam] (the [Elixir &
->     Erlang/OTP][erlang] runtime) bytecode, much like [Java][java] must be
->     compiled to [Java Virtual Machine][jvm] (the Java runtime) bytecode.
->   * The **`mix frontend.install` command** is an
->     [alias](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/mix.exs#L70)
->     for the [`scripts/install-frontend.sh`
->     script](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/scripts/install-frontend.sh)
->     which will download the JavaScript dependencies required by the
->     application's [Alpine.js][alpinejs] frontend. The script uses [npm][npm],
->     the [Node.js][node] & [JavaScript][js] package manager which is installed
->     alongside Node.js.
->
->     The dependencies and which versions to install are [listed in the
->     application's `assets/package.json`
->     file](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/assets/package.json#L10-L26).
->     They are downloaded from the [npm repository][npm] and saved into the
->     `assets/node_modules` directory.
->   * The [`mix ecto.migrate` command][mix-ecto-migrate] command executes [the
->     application's database
->     migrations](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/priv/repo/migrations/20210921151550_initial_schema.exs).
->     These migrations are Elixir programs that will connect to the database and
->     create the table(s) required by the application.
->
->     This is equivalent to [the rest of the `todolist.sql`
->     script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L12-L18)
->     you executed when first deploying the PHP todolist.
-> * :books: The configuration you are instructed to perform either through the
->   `config/local.exs` file or through environment variables is equivalent to
->   the [configuration of the PHP
->   todolist](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/index.php#L3-L15)
->   which you improved during the course using environment variables, except
->   that the Minesweeper application has two configuration mechanisms: a local
->   configuration file and/or environment variables. You can use either or both.
->   It does not matter which you choose. Both are equally valid way of
->   configuring the Minesweeper application.
->
->   Note that the PHP todolist used separate database connection settings
->   (`TODOLIST_DB_NAME`, `TODOLIST_DB_USER`, `TODOLIST_DB_PASS`,
->   `TODOLIST_DB_HOST`, `TODOLIST_DB_PORT`), while the Minesweeper application
->   uses a database connection URL specified with `MINESWEEPER_DATABASE_URL` or
->   in the configuration file). This URL contains the same settings in one
->   value. This is possible because the [syntax of an URL][url] is
->   `<scheme>://<user>:<password>@<host>:<port>/<path>`, therefore all database
->   connection parameters can be specified in one URL:
->   `ecto://myuser:mypassword@localhost:5432/mydatabasename`. ([Ecto][ecto] is
->   the [Object-Relational Mapper (ORM)][orm] used with the [Phoenix][phoenix]
->   framework, much like [Eloquent][eloquent] is the ORM used with the
->   [Laravel][laravel] framework.)
+#### :books: What sorcery is this?
 
-### :ballot_box_with_check: Optional: run the automated tests
+:books: The setup instructions use the `createuser` and `createdb` commands.
+These commands are binaries that come with the PostgreSQL server and can be used
+to manage PostgreSQL users and databases on the command line:
+
+* The **`createuser --interactive --pwprompt minesweeper` command** creates a
+  PostgreSQL user named "minesweeper" and asks you to define a password for that
+  user. The application will use this PostgreSQL username and password to
+  connect to the database.
+* The **`createdb --owner minesweeper minesweeper` command** creates an empty
+  PostgreSQL database named "minesweeper" and owned by the "minesweeper" user.
+  This is the database that the application will use.
+
+You also use the `psql` command, which is PostgreSQL's command line client. You
+will use it to create the [uuid-ossp extension][postgres-uuid-ossp], which is
+used by the application to generate random [UUIDs][uuid] that identify various
+entities managed by the application (games & moves).
+
+This setup is equivalent to [part of the `todolist.sql`
+script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L1-L8)
+you executed when first deploying the PHP todolist.
+
+If you prefer using SQL, you could instead connect to the database as the
+`postgres` user (equivalent to MySQL's `root` user) with `sudo -u postgres psql`
+and run equivalent [`CREATE
+USER`](https://www.postgresql.org/docs/13/sql-createuser.html) and [`CREATE
+DATABASE`](https://www.postgresql.org/docs/13/sql-createdatabase.html) queries,
+as well as the [`CREATE
+EXTENSION`](https://www.postgresql.org/docs/13/sql-createextension.html) query.
+
+Note that on the command line, PostgreSQL uses [peer
+authentication](https://www.postgresql.org/docs/13/auth-peer.html) based on the
+Unix username by default. This is why the commands are prefixed with `sudo -u
+postgres` to execute them as the `postgres` Unix user. This user was created
+when you installed PostgreSQL and has administrative privileges on the entire
+PostgreSQL cluster. You can verify the existence of this user with the command
+`cat /etc/passwd | grep postgres`.
+
+:books: The setup instructions use the **`mix` command**. [Mix][mix] is the
+dependency manager and build tool of the [Elixir][elixir] ecosystem, much like
+[Composer][composer] for [PHP][php] or [npm][npm] for [Node.js][node].
+
+* The [**`mix deps.get` command**][mix-deps-get] is used to download all of the
+  Minesweeper Elixir application's dependencies, i.e. the Elixir/Erlang
+  libraries it requires to work, like the [Phoenix][phoenix] web framework.
+  Phoenix is a web framework written in [Elixir][elixir] much like
+  [Laravel][laravel] is a web framework written in [PHP][php].
+
+  The dependencies and which versions to install are [listed in the
+  application's `mix.exs` file][app-deps]. They are downloaded from [Hex][hex],
+  the package registry for the Elixir and Erlang ecosystems, and saved into the
+  `deps` directory.
+* The [**`mix compile` command**][mix-compile] compiles the application's Elixir
+  source files from the `lib` and `test` directories into the `_build`
+  directory. This step is necessary because Elixir is a compiled language which
+  must be compiled to [BEAM][beam] bytecode (the BEAM is the [Elixir &
+  Erlang/OTP][erlang] runtime), much like [Java][java] must be compiled to [Java
+  Virtual Machine][jvm] bytecode (the JVM is the Java runtime).
+* The **`mix frontend.install` command** is an
+  [alias](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/mix.exs#L70)
+  for the [`scripts/install-frontend.sh`
+  script](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/scripts/install-frontend.sh)
+  which will download the JavaScript dependencies required by the application's
+  [Alpine.js][alpinejs] frontend. The script uses [npm][npm], the
+  [Node.js][node] & [JavaScript][js] package manager which is installed
+  alongside Node.js.
+
+  The dependencies and which versions to install are [listed in the
+  application's `assets/package.json`
+  file](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/assets/package.json#L10-L26).
+  They are downloaded from the [npm repository][npm] and saved into the
+  `assets/node_modules` directory.
+* The [`mix ecto.migrate` command][mix-ecto-migrate] command executes [the
+  application's database
+  migrations](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/priv/repo/migrations/20210921151550_initial_schema.exs).
+  These migrations are Elixir programs that will connect to the database and
+  create the table(s) required by the application.
+
+  This is equivalent to [the rest of the `todolist.sql`
+  script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L12-L18)
+  you executed when first deploying the PHP todolist.
+
+:books: The configuration you are instructed to perform either through the
+`config/local.exs` file or through environment variables is equivalent to the
+[configuration of the PHP
+todolist](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/index.php#L3-L15)
+which you improved during the course using environment variables, except that
+the Minesweeper application has two configuration mechanisms: a local
+configuration file and/or environment variables. You can use either or both. It
+does not matter which you choose. Both are equally valid way of configuring the
+Minesweeper application.
+
+:books: Note that the PHP todolist used separate database connection settings
+(`TODOLIST_DB_NAME`, `TODOLIST_DB_USER`, `TODOLIST_DB_PASS`, `TODOLIST_DB_HOST`,
+`TODOLIST_DB_PORT`), while the Minesweeper application uses a database
+connection URL specified with `MINESWEEPER_DATABASE_URL` or in the configuration
+file). This URL contains the same settings in one value. This is possible
+because the [syntax of an URL][url] is
+`<scheme>://<user>:<password>@<host>:<port>/<path>`, therefore all database
+connection parameters can be specified in one URL:
+`ecto://myuser:mypassword@localhost:5432/mydatabasename`. ([Ecto][ecto] is the
+[Object-Relational Mapper (ORM)][orm] used with the [Phoenix][phoenix]
+framework, much like [Eloquent][eloquent] is the ORM used with the
+[Laravel][laravel] framework.)
+
+### :question: Optional: run the automated tests
 
 The Minesweeper application includes an automated test suite. [Automated
 tests][automated-tests] are programs that check that the application works by
@@ -389,16 +426,16 @@ is working properly, including that:
 > :books: If you are curious, the source code for these tests is in [the `test`
 > directory](https://github.com/MediaComem/minesweeper/tree/main/test).
 >
-> :books: Note that running the automated tests requires compiling the application in
-> test mode with `MIX_ENV=test mix compile`. You have already compiled the
-> application in the initial setup, but the compilation of Elixir programs is
-> done separately for each environment. This allows libraries to behave
-> differently depending on the environment, for example to optimize for faster
-> compilation and refresh time in development, or to optimize for low memory and
-> faster execution in production, or to enable special features specifically for
-> testing.
+> :books: Note that running the automated tests requires compiling the
+> application in test mode with `MIX_ENV=test mix compile`. You have already
+> compiled the application in the initial setup, but the compilation of Elixir
+> programs is done separately for each environment. This allows libraries to
+> behave differently depending on the environment, for example to optimize for
+> faster compilation and refresh time in development, or to optimize for low
+> memory and faster execution in production, or to enable special features
+> specifically for testing.
 
-### :ballot_box_with_check: Optional: run the application in development mode
+### :question: Optional: run the application in development mode
 
 Before running the application in production mode and attempting to set up the
 systemd service, nginx configuration and automated deployment, you can manually
@@ -417,42 +454,42 @@ application by typing `Ctrl-C` **twice** once you are done.
 > directory, and bundle them into the `priv/static` directory. You can see the
 > generated files with `ls priv/static`.
 
-### Run the application in production mode
+### :exclamation: Run the application in production mode
 
 Follow the instructions in the [project's README][readme] to run the application
 in production mode.
 
-> :books: Note that you will once again recompile the application, this time in
-> production mode.
+> :books: You will once again recompile the application, this time in production
+> mode.
 >
 > :books: To run an Elixir application in production, you must assemble a [Mix
 > release][mix-release]. This is basically the compiled application along with
 > the [Erlang/OTP][erlang] runtime, the [BEAM][beam], all packaged in a
 > directory which can be deployed anywhere. Actually, once you have created the
-> release, you could even deploy it on a system where Elixir and Erlang are not
-> installed, as long as it uses the same operating system as the one it was
-> compiled on.
->
+> release, you could even copy it to a system where Elixir and Erlang are not
+> installed and run it there, as long as it uses the same architecture and
+> operating system as those it was compiled on.
+
 > :books: The `MIX_ENV=prod mix do frontend.build, phx.digest` command used in
 > the instructions bundles the frontend's files in production mode, compressing
-> and digesting them. To "digest" a file is to include a hash of its contents in
-> the filename [for the purposes of caching][webpack-caching], optimizing the
-> delivery of web assets to browsers especially when they come back to your
-> website after having already visited once.
->
+> and digesting them. To "digest" a web asset is to include a hash of its
+> contents in the filename [for the purposes of caching][webpack-caching]. This
+> optimizes the delivery of web assets to browsers especially when they come
+> back to your website after having already visited once.
+
 > :books: You can list the `priv/static` directory to see the digested assets:
 > `ls priv/static`. Observe that a file named
 > `priv/static/favicon-a8ca4e3a2bb8fea46a9ee9e102e7d3eb.ico` (the hash may
-> differ) has appeared next to `priv/static/favicon.ico` (if you ran the
-> application in development mode). The hash part of the filename
+> differ) has appeared. The hash part of the filename
 > (`a8ca4e3a2bb8fea46a9ee9e102e7d3eb` in this case) depends on the content. When
-> the content changes, the hash changes. This allows client browsers to cache
-> web assets indefinitely, since we know that an asset's name will not change as
-> long as its content does not change as well.
+> the content changes, the hash changes. This means you can instruct client
+> browsers to cache web assets indefinitely, since you know that an asset's name
+> will not change as long as its content does not change as well and,
+> conversely, that an asset's name will always change if it has been modified.
 
 
 
-## Create a systemd service
+## :exclamation: Create a systemd service
 
 Create and enable a systemd unit file like in the [systemd
 exercise][systemd-ex]. Make the necessary changes to run the Minesweeper
@@ -477,7 +514,7 @@ next time you restart the server with `sudo reboot`.
 
 
 
-## Serve the application through nginx
+## :exclamation: Serve the application through nginx
 
 Create an nginx proxy configuration to serve the application like in the [nginx
 PHP-FPM exercise][nginx-php-fpm-ex].
@@ -495,14 +532,14 @@ PHP-FPM exercise][nginx-php-fpm-ex].
 
 
 
-## Provision a TLS certificate
+## :exclamation: Provision a TLS certificate
 
 Obtain and configure a TLS certificate to serve the application over HTTPS like
 in the [certbot exercise][certbot-ex].
 
 
 
-## Set up an automated deployment with Git hooks
+## :exclamation: Set up an automated deployment with Git hooks
 
 Change your deployment so that the application can be automatically updated via
 a Git hook like in the [automated deployment exercise][auto-deploy-ex].
@@ -556,15 +593,14 @@ run the appropriate commands in your `post-receive` hook script.
 > capable of serving its own files, regardless of nginx's configuration. So the
 > application will keep working even after changing the `root`.
 
-### :books: Allow your user to restart the service without a password
+### :gem: Allowng your user to restart the service without a password
 
 In order for the new `post-receive` hook to work, your user must be able to run
 `sudo systemctl restart minesweeper` (assuming you have named your service
 `minesweeper`) without entering a password, otherwise it will not work in a Git
-hook.
-
-> A Git hook is not an interactive program. You are not running it yourself, so
-> you are not available to enter your password where prompted.
+hook. This is because Git hook is not an interactive program. You are not
+running it yourself, so you are not available to enter your password where
+prompted.
 
 If you are using the administrator user account that came with your Azure VM,
 you already have the right to use `sudo` without a password. (This has been
@@ -607,7 +643,7 @@ Exit with `Ctrl-X` and save when prompted.
 > is normal, because `visudo` uses a temporary file to validate your changes
 > before saving the actual file. You may confirm without changes.
 
-### Test the automated deployment
+### :exclamation: Test the automated deployment
 
 Clone your fork of the repository to your local machine, make sure you have
 added a remote to your server, then commit and push a change to test the
@@ -868,6 +904,7 @@ Run the `exit` command when you are done to exit the PostgreSQL console.
 [ecto]: https://hexdocs.pm/ecto/Ecto.html
 [elixir]: https://elixir-lang.org
 [eloquent]: https://laravel.com/docs/8.x/eloquent
+[erlang]: https://www.erlang.org
 [fork]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [hex]: https://hex.pm
 [initial-setup]: https://github.com/MediaComem/minesweeper#initial-setup
@@ -894,9 +931,11 @@ Run the `exit` command when you are done to exit the PostgreSQL console.
 [phoenix]: https://www.phoenixframework.org
 [php]: https://www.php.net
 [postgres]: https://www.postgresql.org
+[postgres-uuid-ossp]: https://www.postgresql.org/docs/current/uuid-ossp.html
 [readme]: https://github.com/MediaComem/minesweeper#readme
 [repo]: https://github.com/MediaComem/minesweeper
 [systemd-ex]: systemd-deployment.md
 [url]: https://en.wikipedia.org/wiki/URL#Syntax
+[uuid]: https://en.wikipedia.org/wiki/Universally_unique_identifier
 [webpack]: https://webpack.js.org
 [webpack-caching]: https://webpack.js.org/guides/caching/

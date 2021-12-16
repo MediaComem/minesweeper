@@ -1,9 +1,8 @@
 # Minesweeper
 
-A [minesweeper][minesweeper] game implemented with:
-
-* The [Phoenix web framework][phoenix] written in [Elixir][elixir] (backend).
-* The [Alpine.js JavaScript framework][alpinejs] (frontend).
+A [minesweeper][minesweeper] web application. The backend has been developed
+with the [Phoenix web framework][phoenix] written in [Elixir][elixir]. The
+frontend has been developed with the [Alpine.js JavaScript framework][alpinejs].
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -23,14 +22,14 @@ A [minesweeper][minesweeper] game implemented with:
 
 ## Requirements
 
-To run the application once it has been compiled, you will need:
+To run the application, you will need:
 
-* [Elixir][elixir] 1.12 or 1.13 compiled with [Erlang/OTP][erlang] 24
 * [PostgreSQL][postgresql] 12, 13 or 14 and a database with the [uuid-ossp
   extension][postgresql-uuid-ossp]
 
-Additionally, to compile the frontend application, you will need:
+Additionally, to compile the backend and frontend, you will need:
 
+* [Elixir][elixir] 1.12 or 1.13 with [Erlang/OTP][erlang] 24
 * [Node.js][node] 16
 
 
