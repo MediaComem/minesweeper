@@ -614,8 +614,10 @@ deployment to work correctly:
     in most other languages is not reinterpreted on-the-fly; the service must
     be restarted so that the program is reloaded into memory as a new process).
 
-The [project's README][readme] explains how to do all of this. You should run
-the appropriate commands in your `post-receive` hook script.
+The [project's README][readme] explains how to do all of this except restarting
+the Systemd service, which you can easily do with `sudo systemctl restart
+<service>`. You should run the appropriate commands in your `post-receive` hook
+script.
 
 > :gem: In the automated deployment exercice, it is mentionned that the
 > application will no longer work after changing the path to the repository in
