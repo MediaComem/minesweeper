@@ -116,7 +116,7 @@ code is [available on GitHub][repo].
 The application uses the following ~~buzzword salad~~ technologies:
 
 * The backend has been developed with [Phoenix][phoenix], an Elixir web
-  framework that improves the tried and true Model-View-Controller (MVC)
+  framework that improves the tried and true [Model-View-Controller (MVC)][mvc]
   architecture with a fresh set of functional ideas.
   * [Elixir][elixir] is a dynamic, functional language for building scalable and
     maintainable applications. Elixir leverages the Erlang VM, known for running
@@ -146,11 +146,12 @@ deployment.
 
 ## :warning: Before starting the exercise
 
-**Your Azure server has limited memory (RAM).** Unfortunately, there may not be
-enough memory to run the MySQL database server, the PostgreSQL database server,
-PHP-FPM, the PHP todolist and the Minesweeper application.
+**Your Azure server has limited memory (about 1GB of RAM).** Unfortunately, this
+may not be enough memory to run the MySQL database server, the PostgreSQL
+database server, PHP-FPM, the PHP todolist and the Minesweeper application.
 
-You should temporarily stop and disable MySQL with the following commands:
+To be safe, you should temporarily stop and disable MySQL with the following
+commands:
 
 ```bash
 $> sudo systemctl stop mysql
@@ -159,7 +160,7 @@ $> sudo systemctl disable mysql
 
 > Note that this will temporarily break the PHP todolist.
 
-You may also stop, disable and remove the following programs which are not
+You can also stop, disable and remove the following programs which are not
 required for this course, saving some more memory:
 
 ```bash
@@ -179,9 +180,8 @@ $> sudo apt install inotify-tools gnupg
 
 ## :warning: A note about the project's documentation
 
-The [project's README][readme] contains generic instructions on how to run the
-application. That README is generic: it is not written specifically for this
-exercise.
+The [project's README][readme] explains how to set up and run the application.
+That README is generic: it is not written specifically for this exercise.
 
 The instructions on **this page** explain the exercise step-by-step.
 
@@ -195,14 +195,12 @@ without understanding what you are doing in the context of the exercise.
 
 ### :exclamation: Fork the repository
 
-This exercise requires that you make changes to the application, when setting up
-the automated deployment with Git hooks.
 You must [fork][fork] the [application's repository][repo] to your own GitHub
-account.
+account, because this exercise requires that you make changes to the application
+later, after setting up the automated deployment with Git hooks.
 
 :warning: Use your own repository's HTTPS clone URL instead of the one indicated
-in the application's README. This way you will have push access to your
-repository.
+in the project's README. This way you will have push access to your repository.
 
 ### :exclamation: Install the requirements
 
@@ -327,7 +325,7 @@ README][readme].
 > Shall I install Hex? (if running non-interactively, use "mix local.hex --force") [Yn] y
 > ```
 
-#### :books: What sorcery is this?
+### :books: What sorcery is this?
 
 :books: The setup instructions use the `createuser` and `createdb` commands.
 These commands are binaries that come with the PostgreSQL server and can be used
@@ -340,13 +338,12 @@ to manage PostgreSQL users and databases on the command line:
 * The **`createdb --owner minesweeper minesweeper` command** creates an empty
   PostgreSQL database named "minesweeper" and owned by the "minesweeper" user.
   This is the database that the application will use.
+* You will also use the `psql` command, which is PostgreSQL's command line
+  client, to create the [uuid-ossp extension][postgres-uuid-ossp]. The
+  application uses this extension to generate random [UUIDs][uuid] that identify
+  various entities managed by the application (games & moves).
 
-You also use the `psql` command, which is PostgreSQL's command line client. You
-will use it to create the [uuid-ossp extension][postgres-uuid-ossp], which is
-used by the application to generate random [UUIDs][uuid] that identify various
-entities managed by the application (games & moves).
-
-This setup is equivalent to [part of the `todolist.sql`
+:books: This setup is equivalent to [part of the `todolist.sql`
 script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L1-L8)
 you executed when first deploying the PHP todolist.
 
@@ -500,14 +497,14 @@ in production mode.
 > release, you could even copy it to a system where Elixir and Erlang are not
 > installed and run it there, as long as it uses the same architecture and
 > operating system as those it was compiled on.
-
+>
 > :books: The `MIX_ENV=prod mix do frontend.build, phx.digest` command used in
 > the instructions bundles the frontend's files in production mode, compressing
 > and digesting them. To "digest" a web asset is to include a hash of its
 > contents in the filename [for the purposes of caching][webpack-caching]. This
 > optimizes the delivery of web assets to browsers especially when they come
 > back to your website after having already visited once.
-
+>
 > :books: You can list the `priv/static` directory to see the digested assets:
 > `ls priv/static`. Observe that a file named
 > `priv/static/favicon-a8ca4e3a2bb8fea46a9ee9e102e7d3eb.ico` (the hash may
@@ -527,8 +524,12 @@ exercise][systemd-ex]. Make the necessary changes to run the Minesweeper
 application instead of the PHP todolist.
 
 > * :gem: You will find the correct command to run the application in [the
->   project's `README`][readme]. Remember that systemd requires absolute paths
->   to commands.
+>   project's `README`][readme].
+>
+>   Remember that systemd requires absolute paths to commands. The script to run
+>   is not in your PATH, so you cannot use `which` to determine where it is, but
+>   it's easy to determine its absolute path by combining the path to the
+>   repository and the relative path to the script.
 > * :gem: You may need to set the `MINESWEEPER_HTTP_PORT` environment variable
 >   to choose the port on which the application will listen. You can use the
 >   publicly accessible 3001 port temporarily for testing, but you should use
@@ -550,6 +551,11 @@ next time you restart the server with `sudo reboot`.
 Create an nginx proxy configuration to serve the application like in the [nginx
 PHP-FPM exercise][nginx-php-fpm-ex].
 
+The `root` directive in your nginx configuration should point to the
+`priv/static` directory in the repository since that is the directory that
+contains the application's public web assets.
+
+> * :gem: Use an absolute path for the `root` directive.
 > * :gem: Do not follow steps related to PHP FPM, since they are only valid for
 >   a PHP application.
 > * :gem: The `include` and `fastcgi_pass` directives used in the PHP FPM
@@ -557,7 +563,7 @@ PHP-FPM exercise][nginx-php-fpm-ex].
 >   with a [`proxy_pass`
 >   directive](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass).
 >   as [presented during the course][nginx-rp-conf].
-> * :space_invader: you can also point the nginx configuration directly to the
+> * :space_invader: You can also point the nginx configuration directly to the
 >   automated deployment structure. That way you will not have to modify it
 >   later.
 
@@ -576,69 +582,73 @@ Change your deployment so that the application can be automatically updated via
 a Git hook like in the [automated deployment exercise][auto-deploy-ex].
 
 Once you have set up the new directories, make sure to update your systemd unit
-file to point to the correct directory.
+file and nginx configuration file to point to the correct directories.
 
-Note that the new directory is a fresh deployment, so you have to repeat
-part of the [initial setup][initial-setup] you performed in the original
-directory:
+Because the new directory is a fresh deployment, you have to repeat part of the
+[initial setup][initial-setup] you performed in the original directory:
 
-* You must download the dependencies again with `mix do deps.get,
-  frontend.install`.
-* You do not have to create or migrate the database again, and your hook
-  will handle most of the setup, but if you used the `config/local.exs`
-  configuration file, you must recreate it in this new deployment directory
-  as well.
+* You must download the backend and frontend dependencies again with `mix do
+  deps.get, frontend.install`.
+* You do not have to create or migrate the database again, and your hook will
+  handle most of the setup, but if you used the `config/local.exs` configuration
+  file, you must copy it to the new deployment directory as well.
 
-Update the `post-receive` hook. Compared to the PHP todolist, there are
+Complete the `post-receive` hook. Compared to the PHP todolist, there are
 additional steps which must be performed in the script for the automated
 deployment to work correctly:
 
-  1. Backend and frontend dependencies must be updated in case there are new
-     or upgraded ones.
-  1. The database must be migrated to take any new migrations into account.
-  1. The Alpine.js frontend must be rebuilt in case changes were made to the
-     frontend source files.
-  1. The Elixir application must be recompiled and the release must be
-     reassembled in case changes were made to the backend source files.
-  1. The systemd service must be restarted with `systemctl`. (Elixir code is
-     not reinterpreted on-the-fly as with PHP; the process must be restarted
-     so that the program is reloaded into memory).
+  * Backend and frontend dependencies must be updated in case there are new or
+    upgraded ones. The PHP todolist had no dependencies so you did not need to
+    do this.
+  * The database must be migrated to take any new migrations into account.
+  * The Alpine.js frontend must be rebuilt in case changes were made to the
+    frontend source files.
+  * The Elixir application must be recompiled and the release must be
+    reassembled in case changes were made to the backend source files.
+  * The systemd service must be restarted with `systemctl`. (Unlike PHP, code
+    in most other languages is not reinterpreted on-the-fly; the service must
+    be restarted so that the program is reloaded into memory as a new process).
 
-The [application's README][readme] explains how to do all of this. You should
-run the appropriate commands in your `post-receive` hook script.
+The [project's README][readme] explains how to do all of this. You should run
+the appropriate commands in your `post-receive` hook script.
 
-> :books: In the automated deployment exercice, it is mentionned that the
+> :gem: In the automated deployment exercice, it is mentionned that the
 > application will no longer work after changing the path to the repository in
 > the nginx configuration. In the case of the Minesweeper application, it will
 > continue to work, because the application serves its static files on its own,
 > without nginx's help.
 >
-> When using `fastcgi_pass`, nginx is asking the PHP FastCGI Process Manager
-> (PHP-FPM) to find and execute the PHP files in the `root` directory specified
-> by the configuration. When you change that `root` to a directory that is empty
-> (at that stage in the exercise), it will not find the PHP files anymore, and
-> return a 404 Not Found error.
+> :books: When using `fastcgi_pass`, nginx is asking the PHP FastCGI Process
+> Manager (PHP-FPM) to find and execute the PHP files in the `root` directory
+> specified by the configuration. When you change that `root` to a directory
+> that is empty (at that stage in the exercise), it will not find the PHP files
+> anymore, and return a 404 Not Found error.
 >
-> When using `proxy_pass`, nginx is simply forwarding the request to the given
-> address and port. The Minesweeper application listens on that port and is
-> capable of serving its own files, regardless of nginx's configuration. So the
-> application will keep working even after changing the `root`.
+> :books: When using `proxy_pass`, nginx is simply forwarding the request to the
+> given address and port. The Minesweeper application listens on that port and
+> is capable of serving its own files, regardless of nginx's configuration. So
+> the application will keep working even after changing the `root`.
 
-### :gem: Allowng your user to restart the service without a password
+### :gem: Allowing your user to restart the service without a password
 
 In order for the new `post-receive` hook to work, your user must be able to run
 `sudo systemctl restart minesweeper` (assuming you have named your service
 `minesweeper`) without entering a password, otherwise it will not work in a Git
-hook. This is because Git hook is not an interactive program. You are not
+hook. This is because a Git hook is not an interactive program. You are not
 running it yourself, so you are not available to enter your password where
 prompted.
 
-If you are using the administrator user account that came with your Azure VM,
-you already have the right to use `sudo` without a password. (This has been
-automatically configured for you in the `/etc/sudoers.d/90-cloud-init-users`
-file.)
+If you are using the administrator user account that came with your Azure VM to
+run the application, it already has the right to use `sudo` without a password.
 
-#### :space_invader: Allow the dedicated `minesweeper` Unix user to control the Systemd service
+> :books: This has been automatically configured for you in the
+> `/etc/sudoers.d/90-cloud-init-users` file.
+
+### :space_invader: Allowing the dedicated `minesweeper` Unix user to control the Systemd service
+
+If you are trying to complete the bonus challenge, you will need to allow the
+`minesweeper` user run the necessary `sudo systemctl ...` commands without a
+password as well.
 
 Make sure your default editor is `nano` (or whichever you are more comfortable
 with):
@@ -647,38 +657,48 @@ with):
 $> sudo update-alternatives --config editor
 ```
 
-Now you will add a file in the `/etc/sudoers.d` directory to allow users in the
-`minesweeper` Unix group to run some specific commands without a password.
+When you created the `minesweeper` Unix user, your server created a
+corresponding Unix group with the same name by default. Now you will add a file
+in the `/etc/sudoers.d` directory to allow users in the `minesweeper` Unix group
+to run some specific commands without a password.
 
 ```bash
 $> sudo visudo -f /etc/sudoers.d/minesweeper
 ```
 
-Add the following line at the bottom of the file:
+> :books: The [`visudo` command][visudo] allows you to edit the sudoers file in
+> a safe fashion. It will refuse to save a sudoers file with a syntax error
+> (which could potentially corrupt your system or lock you out of your
+> administrative privileges).
+
+Add the following line to the file:
 
 ```
 %minesweeper ALL=(ALL:ALL) NOPASSWD: /bin/systemctl restart minesweeper, /bin/systemctl status minesweeper, /bin/systemctl start minesweeper, /bin/systemctl stop minesweeper
 ```
 
-> This line allows any user in the `minesweeper` group to execute the listed
-> commands with `sudo` without having to enter a password (hence the `NOPASSWD`
-> option).
->
-> You can test that it works by connecting to your server and running `sudo
-> systemctl status minesweeper`. It should no longer ask you for your password.
+> :books: This line allows any user in the `minesweeper` group to execute the
+> listed commands with `sudo` without having to enter a password (hence the
+> `NOPASSWD` option).
 
-Exit with `Ctrl-X` and save when prompted.
+Exit with `Ctrl-X` if you are using Nano or with Esc then `:wq` if you are using
+Vim.
 
-> If you are using nano, the filename you are asked to confirm will be
+> :gem: If you are using nano, the filename you are asked to confirm will be
 > `/etc/sudoers.d/minesweeper.tmp` instead of `/etc/sudoers.d/minesweeper`. This
 > is normal, because `visudo` uses a temporary file to validate your changes
 > before saving the actual file. You may confirm without changes.
 
+You can test that it works by first switching to the `minesweeper` user with
+`sudo su - minesweeper` and then running `sudo systemctl status minesweeper`. It
+should run the command without asking you for any password (only for the
+specific commands listed in the file your created).
+
 ### :exclamation: Test the automated deployment
 
 Clone your fork of the repository to your local machine, make sure you have
-added a remote to your server, then commit and push a change to test the
-automated deployment.
+added a remote pointing to your server, then commit and push a change to test
+the automated deployment.
 
 Here's some visible changes you could easily make:
 
@@ -881,6 +901,19 @@ You can change it with the following command:
 $> sudo -u postgres psql -c '\password minesweeper'
 ```
 
+### :boom: System debugging
+
+You can display the logs of your `minesweeper` Systemd service with the
+following command:
+
+```bash
+$> sudo journalctl -u minesweeper
+```
+
+If the application does not seem to work after running the Systemd service,
+there might be an error message in these logs that can help you identify the
+issue.
+
 ### :boom: PostgreSQL debugging
 
 You can list available databases with the following command:
@@ -951,6 +984,7 @@ Run the `exit` command when you are done to exit the PostgreSQL console.
 [mix-ecto-migrate]: https://hexdocs.pm/ecto_sql/Mix.Tasks.Ecto.Migrate.html
 [mix-phx-digest]: https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Digest.html
 [mix-release]: https://hexdocs.pm/mix/1.12/Mix.Tasks.Release.html
+[mvc]: https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller
 [nginx-php-fpm-ex]: nginx-php-fpm-deployment.md
 [nginx-proxy-pass]: http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass
 [nginx-rp-conf]: https://mediacomem.github.io/comem-archidep/2020-2021/subjects/reverse-proxy/?home=MediaComem%2Fcomem-archidep%23readme#29
@@ -968,5 +1002,6 @@ Run the `exit` command when you are done to exit the PostgreSQL console.
 [systemd-ex]: systemd-deployment.md
 [url]: https://en.wikipedia.org/wiki/URL#Syntax
 [uuid]: https://en.wikipedia.org/wiki/Universally_unique_identifier
+[visudo]: https://linux.die.net/man/8/visudo
 [webpack]: https://webpack.js.org
 [webpack-caching]: https://webpack.js.org/guides/caching/

@@ -111,15 +111,15 @@ Additionally, to compile the backend and frontend, you will need:
     export MINESWEEPER_SECRET_KEY_BASE="mysecretkey"
     ```
 
-    > Configuration parameters provided this way are only valid in the
-    > shell/SSH session where you run these commands. You will need to run them
-    > again in each new shell or add them to your shell's startup configuration
-    > file (e.g. `.bash_profile`). When using a process manager like Systemd,
-    > you will need to tell Systemd to provide these environment variables.
+    > Configuration parameters provided this way are only valid in the shell/SSH
+    > session where you run these commands. You will need to run them again in
+    > each new shell or add them to your shell's startup configuration file
+    > (e.g. `.bash_profile`). When using a process manager like Systemd, you
+    > will need to tell Systemd to provide these environment variables.
 
-  > You can use both the local configuration file and environment variables, in
-  > which case the environment variables specified at runtime will always
-  > override the corresponding settings in the configuration file.
+  > You can also use both the local configuration file and environment
+  > variables, in which case the environment variables specified at runtime will
+  > always override the corresponding settings in the configuration file.
 * Migrate the production database:
 
   ```bash
@@ -212,7 +212,8 @@ the application running.
   $> MIX_ENV=prod mix release
   ```
 
-You can run the production manually by executing the following command:
+You can run the production manually by executing the following command from the
+repository:
 
 ```bash
 _build/prod/rel/minesweeper/bin/minesweeper start
@@ -231,8 +232,6 @@ $> MINESWEEPER_HTTP_PORT=3001 _build/prod/rel/minesweeper/bin/minesweeper start
 > ```bash
 > $> /path/to/minesweeper/_build/prod/rel/minesweeper/bin/minesweeper start
 > ```
->
-> (Replace `/path/to/minesweeper` with the path to the repository.)
 
 
 
@@ -260,9 +259,9 @@ You may then restart the application.
 
 You can configure the application in two ways:
 
-* Create a `config/local.exs` file in the application's directory (see the
-  `config/local.sample.exs` sample file).
-* Use the environment variables documented below.
+* Either create a `config/local.exs` file in the application's directory (see
+  the `config/local.sample.exs` sample file).
+* Or use the environment variables documented below.
 
 You may also use both. The parameters in the local configuration file are
 bundled in the compiled production release. Note that the environment variables,
