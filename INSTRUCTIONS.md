@@ -46,8 +46,8 @@ previous exercices to deploy a new application from scratch on your server.
 
 ## The goal
 
-You **MUST** deploy the provided application in a similar way as the PHP
-todolist in previous exercises:
+You must deploy the provided application in a similar way as the PHP todolist in
+previous exercises:
 
 * Install the language(s) and database necessary to run the application (which
   are different than for the PHP todolist).
@@ -71,49 +71,71 @@ As an optional bonus challenge:
 
 * Create a dedicated Unix user (e.g. `minesweeper`) other than your personal
   user (e.g. `john_doe`) to run the application.
-* This user must be a system user, not a login user. It should not
+* This user should be a system user, not a login user. It should not
   be able to log in with a password, although you can set up SSH public key
   authentication for the automated deployment.
-* You must clone the project's repository with this user.
-* You must run the application as this user with systemd.
-* You must use the application's local configuration file instead of environment
-  variables (see its documentation), and you must set up file/directory
-  permissions so that only the dedicated user has access to the configuration
-  file (the `root` user will of course have access as well).
+* Clone the project's repository with the dedicated user instead of your
+  personal user.
+* Configure systemd to run the application as the dedicated user instead of your
+  personal user.
+* Set up the automated deployment with the dedicated user instead of your
+  personal user.
+* Use the application's local configuration file instead of environment
+  variables (see its documentation), and set up file/directory permissions so
+  that only the dedicated user has access to the configuration file (the `root`
+  user will of course have access as well).
 
-### Legend
+
+
+## Legend
 
 Parts of this guide are annotated with the following icons:
 
-* :exclamation: This is a task you have to perform to complete the exercise.
-* :question: *This is an optional step that you can perform if you want to
-  ensure that everything is working correctly. But you can also skip it because
-  it is not necessary to complete it to proceed further.*
+* :exclamation: A task you **MUST** perform to complete the exercise.
+* :question: An optional step that you *may* perform to make sure that
+  everything is working correctly. But you can skip it because it is not
+  necessary.
 * :warning: **Critically important information about the exercise.**
 * :gem: Tips on the exercise, reminders about previous exercises, or
   explanations about how this exercise differs from the previous one.
-* :books: *Additional information that you can read if you want to know more
-  about the commands and tools used during this exercise.*
+* :books: Additional information that you can read if you want to know more
+  about the commands and tools used during this exercise.
 * :space_invader: More advanced tips on how to save some time, or tips about the
   bonus challenge.
 * :boom: Troubleshooting tips: how to fix common problems you might encounter.
 
-### The application
+
+
+## The application
 
 The application you must deploy is a [Minesweeper][minesweeper] web game. Its
 code is [available on GitHub][repo].
 
-#### :books: What the hell is Elixir, Erlang/OTP, PostgreSQL?
+### :books: What the hell are Elixir, Erlang/OTP and PostgreSQL?
 
-:books: The application uses the following technologies:
+The application uses the following ~~buzzword salad~~ technologies:
 
-* [Phoenix][phoenix], an [Elixir][elixir] web framework, for the backend.
-  * Elixir is a programming language based on [Erlang/OTP][erlang] which you
-    will also install.
-* [Alpine.js][alpinejs], a [JavaScript][js] framework, for the frontend.
+* The backend has been developed with [Phoenix][phoenix], an Elixir web
+  framework that improves the tried and true Model-View-Controller (MVC)
+  architecture with a fresh set of functional ideas.
+  * [Elixir][elixir] is a dynamic, functional language for building scalable and
+    maintainable applications. Elixir leverages the Erlang VM, known for running
+    low-latency, distributed, and fault-tolerant systems (for example, Discord
+    uses Elixir.)
+  * [Erlang/OTP][erlang] is a programming language and a set of libraries used
+    to build massively scalable soft real-time systems with requirements on high
+    availability. Erlang's runtime system has built-in support for concurrency,
+    distribution and fault tolerance. Some of its uses are in telecoms (90% of
+    all internet traffic goes through routers and switches that use Erlang),
+    banking, e-commerce, computer telephony and instant messaging (for example,
+    WhatApp uses Erlang).
+* The frontend has been developed with [Alpine.js][alpinejs], a lightweight
+  [JavaScript][js] framework for composing behavior directly in your markup.
   * You will also use [Node.js][node], a server-side JavaScript runtime, to
-    download JavaScript libraries.
-* [PostgreSQL][postgres], an open source relational database.
+    download JavaScript libraries and tools.
+* [PostgreSQL][postgres] is a powerful, open source object-relational database
+  system with over 30 years of active development that has earned it a strong
+  reputation for reliability, feature robustness, and performance.
 
 You do not need to know the specifics of these technologies. Your goal is only
 to deploy the application as indicated by the instructions. You will not need to
@@ -146,11 +168,11 @@ $> sudo systemctl disable gdm
 $> sudo apt remove snapd --purge
 ```
 
-To avoid warnings later, you should also install the following package which is
-used by some of the application's dependencies:
+To avoid warnings later, you should also install the following packages which
+are required to install the application and some of its dependencies:
 
 ```bash
-$> sudo apt install inotify-tools
+$> sudo apt install inotify-tools gnupg
 ```
 
 
@@ -295,6 +317,15 @@ described in the [project's README][readme] on your server:
 
 You must perform the **initial setup** instructions indicated in the [project's
 README][readme].
+
+> :gem: When installing the application's dependencies with the `mix deps.get`
+> command, you can answer yes if Mix asks you to install Hex:
+>
+> ```bash
+> $> mix deps.get
+> Could not find Hex, which is needed to build dependency :phoenix
+> Shall I install Hex? (if running non-interactively, use "mix local.hex --force") [Yn] y
+> ```
 
 #### :books: What sorcery is this?
 
