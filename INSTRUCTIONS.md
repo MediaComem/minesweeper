@@ -6,36 +6,55 @@ previous exercices to deploy a new application from scratch on your server.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Legend](#legend)
 - [The goal](#the-goal)
   - [The application](#the-application)
-- [:warning Before starting the exercise :warning:](#warning-before-starting-the-exercise-warning)
+- [:warning: Before starting the exercise :warning:](#warning-before-starting-the-exercise-warning)
 - [Getting started](#getting-started)
   - [Fork the repository](#fork-the-repository)
   - [Install the requirements](#install-the-requirements)
   - [Perform the initial setup](#perform-the-initial-setup)
-  - [Optional: run the automated tests](#optional-run-the-automated-tests)
-  - [Optional: run the application in development mode](#optional-run-the-application-in-development-mode)
+  - [:ballot_box_with_check: Optional: run the automated tests](#ballot_box_with_check-optional-run-the-automated-tests)
+  - [:ballot_box_with_check: Optional: run the application in development mode](#ballot_box_with_check-optional-run-the-application-in-development-mode)
   - [Run the application in production mode](#run-the-application-in-production-mode)
 - [Create a systemd service](#create-a-systemd-service)
 - [Serve the application through nginx](#serve-the-application-through-nginx)
 - [Provision a TLS certificate](#provision-a-tls-certificate)
 - [Set up an automated deployment with Git hooks](#set-up-an-automated-deployment-with-git-hooks)
-  - [Allow your user to restart the service without a password](#allow-your-user-to-restart-the-service-without-a-password)
-    - [Allow the dedicated `minesweeper` Unix user to control the Systemd service](#allow-the-dedicated-minesweeper-unix-user-to-control-the-systemd-service)
+  - [:books: Allow your user to restart the service without a password](#books-allow-your-user-to-restart-the-service-without-a-password)
+    - [:space_invader: Allow the dedicated `minesweeper` Unix user to control the Systemd service](#space_invader-allow-the-dedicated-minesweeper-unix-user-to-control-the-systemd-service)
   - [Test the automated deployment](#test-the-automated-deployment)
-- [Troubleshooting](#troubleshooting)
-  - [`Could not find a Mix.Project`](#could-not-find-a-mixproject)
-  - [`Note no mix.exs was found in the current directory`](#note-no-mixexs-was-found-in-the-current-directory)
-  - [`password authentication failed for user "minesweeper"`](#password-authentication-failed-for-user-minesweeper)
-  - [`:eaddrinuse (address already in use)`](#eaddrinuse-address-already-in-use)
-  - [`remote: sudo: no tty present and no askpass program specified`](#remote-sudo-no-tty-present-and-no-askpass-program-specified)
-  - [`code=exited, status=200/CHDIR`](#codeexited-status200chdir)
-  - [`502 Bad Gateway`](#502-bad-gateway)
-  - [I forgot to fork the Minesweeper repository and I have already cloned it](#i-forgot-to-fork-the-minesweeper-repository-and-i-have-already-cloned-it)
-  - [I don't remember the password I used for the `minesweeper` PostgreSQL user](#i-dont-remember-the-password-i-used-for-the-minesweeper-postgresql-user)
-  - [PostgreSQL debugging](#postgresql-debugging)
+- [:boom: Troubleshooting](#boom-troubleshooting)
+  - [:boom: `Could not find a Mix.Project`](#boom-could-not-find-a-mixproject)
+  - [:boom: `Note no mix.exs was found in the current directory`](#boom-note-no-mixexs-was-found-in-the-current-directory)
+  - [:boom: `password authentication failed for user "minesweeper"`](#boom-password-authentication-failed-for-user-minesweeper)
+  - [:boom: `:eaddrinuse (address already in use)`](#boom-eaddrinuse-address-already-in-use)
+  - [:boom: `remote: sudo: no tty present and no askpass program specified`](#boom-remote-sudo-no-tty-present-and-no-askpass-program-specified)
+  - [:boom: `code=exited, status=200/CHDIR`](#boom-codeexited-status200chdir)
+  - [:boom: `502 Bad Gateway`](#boom-502-bad-gateway)
+  - [:boom: I forgot to fork the Minesweeper repository and I have already cloned it](#boom-i-forgot-to-fork-the-minesweeper-repository-and-i-have-already-cloned-it)
+  - [:boom: I don't remember the password I used for the `minesweeper` PostgreSQL user](#boom-i-dont-remember-the-password-i-used-for-the-minesweeper-postgresql-user)
+  - [:boom: PostgreSQL debugging](#boom-postgresql-debugging)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+
+## Legend
+
+This guide is annotated with the following icons:
+
+* :warning: **Critically important information for this exercise.**
+* :gem: Tips on this exercise, reminders about previous exercises, or
+  explanations about how this exercise differs from the previous one.
+* :ballot_box_with_check: *Optional steps that you can perform to ensure that
+  everything is working correctly, but which can be skipped because they are not
+  required to proceed.*
+* :books: *Additional information that you can read if you want to know more
+  about the commands and tools used during this exercise.*
+* :space_invader: More advanced tips on how to save some time.
+* :boom: Troubleshooting: help on how to fix common problems you might
+  encounter.
 
 
 
@@ -67,30 +86,31 @@ Additionally:
 The application you must deploy is a [Minesweeper][minesweeper] web game. Its
 code is [available on GitHub][repo].
 
-It uses:
+> :books: This application uses:
 
-* [Phoenix][phoenix], an [Elixir][elixir] web framework, for the backend.
-  * Elixir is a programming language based on [Erlang/OTP][erlang] which you
-    will also install.
-* [Alpine.js][alpinejs], a [JavaScript][js] framework, for the frontend.
-  * You will also use [Node.js][node], a server-side JavaScript runtime, to
-    download JavaScript libraries.
-* [PostgreSQL][postgres], an open source relational database.
+> * [Phoenix][phoenix], an [Elixir][elixir] web framework, for the backend.
+>   * Elixir is a programming language based on [Erlang/OTP][erlang] which you
+>     will also install.
+> * [Alpine.js][alpinejs], a [JavaScript][js] framework, for the frontend.
+>   * You will also use [Node.js][node], a server-side JavaScript runtime, to
+>     download JavaScript libraries.
+> * [PostgreSQL][postgres], an open source relational database.
+>
+> You do not need to know the specifics of these technologies. Your goal is only
+> to deploy the application as indicated by the instructions, not to modify it.
 
-You do not need to know the specifics of these technologies. Your goal is only
-to deploy the application as indicated by the instructions, not to modify it.
-
-:warning: The [application's README][readme] which explains how to run the
-application is generic. It is not written specifically for this exercise. The
-instructions on this page explain the exercise step-by-step, and you will need
-to use the instructions in the application's README at some point, but be
-careful not to blindly execute commands from it.
+:warning: The [application's README][readme] contains generic instructions on
+how to run the application. That README is generic: it is not written
+specifically for this exercise. The instructions on this page explain the
+exercise step-by-step, and you will need to use the instructions in the
+application's README at some point, but be careful not to blindly execute
+commands from it.
 
 
 
-## :warning Before starting the exercise :warning:
+## :warning: Before starting the exercise :warning:
 
-Your Azure server has limited memory (RAM). Unfortunately, there may not be
+**Your Azure server has limited memory (RAM).** Unfortunately, there may not be
 enough memory to run the MySQL database server, the PostgreSQL database server,
 PHP-FPM, the PHP todolist and the Minesweeper application.
 
@@ -139,17 +159,19 @@ repository.
 You may want to start by making sure you have installed all the requirements
 described in the [project's README][readme] on your server:
 
-* **How to install Elixir:** the [Elixir website][elixir] gives you very
-  straightforward installation instructions. Find the instructions specific to
-  Ubuntu, the Linux distribution used on your server.
+* **How to install Elixir:** the [Elixir website][elixir] provides very
+  straightforward installation instructions. You should look for installation
+  instructions specific to Ubuntu, the Linux distribution used on your server.
 * **How to install Node.js:** there are several methods to install Node.js. One
   of the simplest is to use the [binary distributions provided by
-  NodeSource][node-install]. Find the installation instructions specific to your
-  operating system (Ubuntu). If possible, you should find instructions for the
-  apt package manager (using the `apt` or `apt-get` command).
+  NodeSource][node-install]. You should look for installation instructions
+  specific to Ubuntu, the Linux distribution used on your server. If possible,
+  you should find instructions for the apt package manager (using the `apt` or
+  `apt-get` command).
 * **How to install PostgreSQL:** you can follow the official instructions on the
   Downloads page of the [PostgreSQL website][postgres]. You should look for
-  installation instructions specific to your operating system (Ubuntu).
+  installation instructions specific to Ubuntu, the Linux distribution used on
+  your server.
 
 You can then check that you have installed everything correctly:
 
@@ -237,6 +259,7 @@ You can then check that you have installed everything correctly:
   >
   > ```bash
   > $> cat /etc/postgresql/12/main/postgresql.conf | grep '^port'
+  > port = 5432
   > ```
 
 ### Perform the initial setup
@@ -244,18 +267,18 @@ You can then check that you have installed everything correctly:
 You must perform the **initial setup** instructions indicated in the [project's
 README][readme].
 
-> Here's some additional information on what you are doing:
+> :books: Here's some additional information on what you are doing:
 >
-> * The setup instructions use the `createuser` and `createdb` commands. These
->   commands are binaries that come with the PostgreSQL server and can be used
->   to manage PostgreSQL users and databases on the command line:
+> * :books: The setup instructions use the `createuser` and `createdb` commands.
+>   These commands are binaries that come with the PostgreSQL server and can be
+>   used to manage PostgreSQL users and databases on the command line:
 >
->   * The **`createuser --interactive --pwprompt minesweeper` command** creates
->     a PostgreSQL user named "minesweeper" and asks you to define a password
->     for that user. The application will use this PostgreSQL username and
->     password to connect to the database.
->   * The **`createdb --owner minesweeper minesweeper` command** creates an
->     empty PostgreSQL database named "minesweeper" and owned by the
+>   * The **`createuser --interactive --pwprompt minesweeper` command**
+>     creates a PostgreSQL user named "minesweeper" and asks you to define a
+>     password for that user. The application will use this PostgreSQL username
+>     and password to connect to the database.
+>   * The **`createdb --owner minesweeper minesweeper` command** creates
+>     an empty PostgreSQL database named "minesweeper" and owned by the
 >     "minesweeper" user. This is the database that the application will use.
 >
 >   This is equivalent to [part of the `todolist.sql`
@@ -276,7 +299,7 @@ README][readme].
 >   user was created when you installed PostgreSQL and has administrative
 >   privileges on the entire PostgreSQL cluster. You can verify the existence of
 >   this user with the command `cat /etc/passwd | grep postgres`.
-> * The setup instructions use the **`mix` command**. [Mix][mix] is the
+> * :books: The setup instructions use the **`mix` command**. [Mix][mix] is the
 >   dependency manager and build tool of the [Elixir][elixir] ecosystem, much
 >   like [Composer][composer] for [PHP][php] or [npm][npm] for [Node.js][node].
 >
@@ -319,7 +342,7 @@ README][readme].
 >     This is equivalent to [the rest of the `todolist.sql`
 >     script](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/todolist.sql#L12-L18)
 >     you executed when first deploying the PHP todolist.
-> * The configuration you are instructed to perform either through the
+> * :books: The configuration you are instructed to perform either through the
 >   `config/local.exs` file or through environment variables is equivalent to
 >   the [configuration of the PHP
 >   todolist](https://github.com/MediaComem/comem-archidep-php-todo-exercise/blob/5d46e9fcf974d3d74d5eec838c512798f02581e1/index.php#L3-L15)
@@ -342,13 +365,16 @@ README][readme].
 >   framework, much like [Eloquent][eloquent] is the ORM used with the
 >   [Laravel][laravel] framework.)
 
-### Optional: run the automated tests
+### :ballot_box_with_check: Optional: run the automated tests
 
 The Minesweeper application includes an automated test suite. [Automated
 tests][automated-tests] are programs that check that the application works by
 simulating input and checking output. They are not a replacement for manual
-tests, but programs can test mundane, repetitive tasks much faster and much more
-reliably than a human can.
+testing by humans, but programs can test mundane, repetitive tasks much faster
+and much more reliably than a human can.
+
+The [project's README][readme] explains how to set up and run the automated
+tests.
 
 Running these tests is entirely optional, but it will make sure that everything
 is working properly, including that:
@@ -360,7 +386,10 @@ is working properly, including that:
   migrations).
 * The application behaves as specified.
 
-> Note that running the automated tests requires compiling the application in
+> :books: If you are curious, the source code for these tests is in [the `test`
+> directory](https://github.com/MediaComem/minesweeper/tree/main/test).
+>
+> :books: Note that running the automated tests requires compiling the application in
 > test mode with `MIX_ENV=test mix compile`. You have already compiled the
 > application in the initial setup, but the compilation of Elixir programs is
 > done separately for each environment. This allows libraries to behave
@@ -369,7 +398,7 @@ is working properly, including that:
 > faster execution in production, or to enable special features specifically for
 > testing.
 
-### Optional: run the application in development mode
+### :ballot_box_with_check: Optional: run the application in development mode
 
 Before running the application in production mode and attempting to set up the
 systemd service, nginx configuration and automated deployment, you can manually
@@ -382,9 +411,9 @@ firewall. Run the application on that port and visit http://W.X.Y.Z:3001 to
 check that it works (replacing `W.X.Y.Z` by your server's IP address). Stop the
 application by typing `Ctrl-C` **twice** once you are done.
 
-> For your information, running the application in development mode will use
-> [Webpack], a static module bundler for JavaScript applications, to take the
-> [Alpine.js][alpinejs] frontend source files and assets in the `assets`
+> :books: For your information, running the application in development mode will
+> use [Webpack], a static module bundler for JavaScript applications, to take
+> the [Alpine.js][alpinejs] frontend source files and assets in the `assets`
 > directory, and bundle them into the `priv/static` directory. You can see the
 > generated files with `ls priv/static`.
 
@@ -393,10 +422,10 @@ application by typing `Ctrl-C` **twice** once you are done.
 Follow the instructions in the [project's README][readme] to run the application
 in production mode.
 
-> Note that you will once again recompile the application, this time in
+> :books: Note that you will once again recompile the application, this time in
 > production mode.
 >
-> To run an Elixir application in production, you must assemble a [Mix
+> :books: To run an Elixir application in production, you must assemble a [Mix
 > release][mix-release]. This is basically the compiled application along with
 > the [Erlang/OTP][erlang] runtime, the [BEAM][beam], all packaged in a
 > directory which can be deployed anywhere. Actually, once you have created the
@@ -404,15 +433,15 @@ in production mode.
 > installed, as long as it uses the same operating system as the one it was
 > compiled on.
 >
-> The `MIX_ENV=prod mix do frontend.build, phx.digest` command used in the
-> instructions bundles the frontend's files in production mode, compressing and
-> digesting them. To "digest" a file is to include a hash of its contents in the
-> filename [for the purposes of caching][webpack-caching], optimizing the
+> :books: The `MIX_ENV=prod mix do frontend.build, phx.digest` command used in
+> the instructions bundles the frontend's files in production mode, compressing
+> and digesting them. To "digest" a file is to include a hash of its contents in
+> the filename [for the purposes of caching][webpack-caching], optimizing the
 > delivery of web assets to browsers especially when they come back to your
 > website after having already visited once.
 >
-> You can list the `priv/static` directory to see the digested assets: `ls
-> priv/static`. Observe that a file named
+> :books: You can list the `priv/static` directory to see the digested assets:
+> `ls priv/static`. Observe that a file named
 > `priv/static/favicon-a8ca4e3a2bb8fea46a9ee9e102e7d3eb.ico` (the hash may
 > differ) has appeared next to `priv/static/favicon.ico` (if you ran the
 > application in development mode). The hash part of the filename
@@ -429,13 +458,11 @@ Create and enable a systemd unit file like in the [systemd
 exercise][systemd-ex]. Make the necessary changes to run the Minesweeper
 application instead of the PHP todolist.
 
-> **Hints:**
->
-> * You will find the correct command to run the application in [the project's
->   `README`][readme]. Remember that systemd requires absolute paths to
->   commands.
-> * You may need to set the `MINESWEEPER_HTTP_PORT` environment variable to
->   choose the port on which the application will listen. You can use the
+> * :gem: You will find the correct command to run the application in [the
+>   project's `README`][readme]. Remember that systemd requires absolute paths
+>   to commands.
+> * :gem: You may need to set the `MINESWEEPER_HTTP_PORT` environment variable
+>   to choose the port on which the application will listen. You can use the
 >   publicly accessible 3001 port temporarily for testing, but you should use
 >   another free port that is not exposed to complete the exercise, since one of
 >   the requirements is to expose the application only through nginx.
@@ -443,7 +470,7 @@ application instead of the PHP todolist.
 Once you have enabled and started the service, it should start automatically the
 next time you restart the server with `sudo reboot`.
 
-> **Advanced hint:** if you know what you are doing, you can already set up the
+> :space_invader: If you know what you are doing, you can already set up the
 > automated deployment project structure at this point, so that you can point
 > your systemd configuration to the correct directory. That way you will not
 > have to modify it later.
@@ -455,16 +482,14 @@ next time you restart the server with `sudo reboot`.
 Create an nginx proxy configuration to serve the application like in the [nginx
 PHP-FPM exercise][nginx-php-fpm-ex].
 
-> **Hints:**
->
-> * Do not follow steps related to PHP FPM, since they are only valid for a PHP
->   application.
-> * The `include` and `fastcgi_pass` directives used in the PHP FPM exercise
->   make no sense for a non-PHP application. You should replace them with a
->   [`proxy_pass`
+> * :gem: Do not follow steps related to PHP FPM, since they are only valid for
+>   a PHP application.
+> * :gem: The `include` and `fastcgi_pass` directives used in the PHP FPM
+>   exercise make no sense for a non-PHP application. You should replace them
+>   with a [`proxy_pass`
 >   directive](http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass).
 >   as [presented during the course][nginx-rp-conf].
-> * **Advanced:** you can also point the nginx configuration directly to the
+> * :space_invader: you can also point the nginx configuration directly to the
 >   automated deployment structure. That way you will not have to modify it
 >   later.
 
@@ -482,56 +507,56 @@ in the [certbot exercise][certbot-ex].
 Change your deployment so that the application can be automatically updated via
 a Git hook like in the [automated deployment exercise][auto-deploy-ex].
 
-> **Hints:**
->
-> * Once you have set up the new directories, make sure to update your systemd
->   unit file to point to the correct directory.
->
->   Note that the new directory is a fresh deployment, so you have to repeat
->   part of the [initial setup][initial-setup] you performed in the original
->   directory:
->
->   * You must download the dependencies again with `mix do deps.get,
->     frontend.install`.
->   * You do not have to create or migrate the database again, and your hook
->     will handle most of the setup, but if you used the `config/local.exs`
->     configuration file, you must recreate it in this new deployment directory
->     as well.
-> * Update the `post-receive` hook. Compared to the PHP todolist, there are
->   additional steps which must be performed in the script for the automated
->   deployment to work correctly:
->
->   1. Backend and frontend dependencies must be updated in case there are new
->      or upgraded ones.
->   1. The database must be migrated to take any new migrations into account.
->   1. The Alpine.js frontend must be rebuilt in case changes were made to the
->      frontend source files.
->   1. The Elixir application must be recompiled and the release must be
->      reassembled in case changes were made to the backend source files.
->   1. The systemd service must be restarted with `systemctl`. (Elixir code is
->      not reinterpreted on-the-fly as with PHP; the process must be restarted
->      so that the program is reloaded into memory).
->
->   The [application's README][readme] explains what to do to update the
->   application. This must be done in your `post-receive` hook script.
-> * Note: in the automated deployment exercice, it is mentionned that the
->   application will no longer work after changing the path to the repository in
->   the nginx configuration. In the case of the Minesweeper application, it will
->   continue to work, because the application serves its static files on its
->   own, without nginx's help.
->
->   When using `fastcgi_pass`, nginx is asking the PHP FastCGI Process Manager
->   (PHP-FPM) to find and execute the PHP files in the `root` directory
->   specified by the configuration. When you change that `root` to a directory
->   that is empty (at that stage in the exercise), it will not find the PHP
->   files anymore, and return a 404 Not Found error.
->
->   When using `proxy_pass`, nginx is simply forwarding the request to the given
->   address and port. The application listens on that port and is capable of
->   serving its own files, regardless of nginx's configuration. So the
->   application will keep working even after changing the `root`.
+Once you have set up the new directories, make sure to update your systemd unit
+file to point to the correct directory.
 
-### Allow your user to restart the service without a password
+Note that the new directory is a fresh deployment, so you have to repeat
+part of the [initial setup][initial-setup] you performed in the original
+directory:
+
+* You must download the dependencies again with `mix do deps.get,
+  frontend.install`.
+* You do not have to create or migrate the database again, and your hook
+  will handle most of the setup, but if you used the `config/local.exs`
+  configuration file, you must recreate it in this new deployment directory
+  as well.
+
+Update the `post-receive` hook. Compared to the PHP todolist, there are
+additional steps which must be performed in the script for the automated
+deployment to work correctly:
+
+  1. Backend and frontend dependencies must be updated in case there are new
+     or upgraded ones.
+  1. The database must be migrated to take any new migrations into account.
+  1. The Alpine.js frontend must be rebuilt in case changes were made to the
+     frontend source files.
+  1. The Elixir application must be recompiled and the release must be
+     reassembled in case changes were made to the backend source files.
+  1. The systemd service must be restarted with `systemctl`. (Elixir code is
+     not reinterpreted on-the-fly as with PHP; the process must be restarted
+     so that the program is reloaded into memory).
+
+The [application's README][readme] explains how to do all of this. You should
+run the appropriate commands in your `post-receive` hook script.
+
+> :books: In the automated deployment exercice, it is mentionned that the
+> application will no longer work after changing the path to the repository in
+> the nginx configuration. In the case of the Minesweeper application, it will
+> continue to work, because the application serves its static files on its own,
+> without nginx's help.
+>
+> When using `fastcgi_pass`, nginx is asking the PHP FastCGI Process Manager
+> (PHP-FPM) to find and execute the PHP files in the `root` directory specified
+> by the configuration. When you change that `root` to a directory that is empty
+> (at that stage in the exercise), it will not find the PHP files anymore, and
+> return a 404 Not Found error.
+>
+> When using `proxy_pass`, nginx is simply forwarding the request to the given
+> address and port. The Minesweeper application listens on that port and is
+> capable of serving its own files, regardless of nginx's configuration. So the
+> application will keep working even after changing the `root`.
+
+### :books: Allow your user to restart the service without a password
 
 In order for the new `post-receive` hook to work, your user must be able to run
 `sudo systemctl restart minesweeper` (assuming you have named your service
@@ -546,7 +571,7 @@ you already have the right to use `sudo` without a password. (This has been
 automatically configured for you in the `/etc/sudoers.d/90-cloud-init-users`
 file.)
 
-#### Allow the dedicated `minesweeper` Unix user to control the Systemd service
+#### :space_invader: Allow the dedicated `minesweeper` Unix user to control the Systemd service
 
 Make sure your default editor is `nano` (or whichever you are more comfortable
 with):
@@ -599,7 +624,7 @@ Here's some visible changes you could easily make:
 
 
 
-## Troubleshooting
+## :boom: Troubleshooting
 
 Here's a few tips about some problems you may encounter during this exercise.
 Note that some of these errors can happen in various situations:
@@ -608,7 +633,7 @@ Note that some of these errors can happen in various situations:
 * When systemd tries to start your service.
 * When your `post-receive` Git hook executes.
 
-### `Could not find a Mix.Project`
+### :boom: `Could not find a Mix.Project`
 
 If you see an error message similar to this:
 
@@ -627,7 +652,7 @@ In this exercise, you want to run `mix` commands in the directory where the
 Minesweeper application's files are located, i.e. the directory that you
 creating when cloning the repository.
 
-### `Note no mix.exs was found in the current directory`
+### :boom: `Note no mix.exs was found in the current directory`
 
 If you see an error message similar to this:
 
@@ -640,7 +665,7 @@ Note no mix.exs was found in the current directory
 The problem is the same as the previous one. You are executing a `mix` command
 in the wrong directory.
 
-### `password authentication failed for user "minesweeper"`
+### :boom: `password authentication failed for user "minesweeper"`
 
 If you see an error similar to this when migrating the database or starting the
 application:
@@ -665,7 +690,7 @@ cannot connect to the database:
 > connect to its MySQL database, the Minesweeper application also requires the
 > correct configuration to connect to its PostgreSQL database.
 
-### `:eaddrinuse (address already in use)`
+### :boom: `:eaddrinuse (address already in use)`
 
 If you see an error similar to this when running the application:
 
@@ -708,7 +733,7 @@ example if you are trying to run the application in development mode:
 $> MINESWEEPER_HTTP_PORT=4321 mix phx.server
 ```
 
-### `remote: sudo: no tty present and no askpass program specified`
+### :boom: `remote: sudo: no tty present and no askpass program specified`
 
 If you see an error message similar to this when your Git hook is triggered:
 
@@ -742,7 +767,7 @@ something other than `minesweeper.service`, you must adapt the commands in the
 > enter your password. Once that is done, these commands will work from the Git
 > hook as well.
 
-### `code=exited, status=200/CHDIR`
+### :boom: `code=exited, status=200/CHDIR`
 
 If you see an error message similar to this in your systemd service's status:
 
@@ -754,7 +779,7 @@ It means that systemd failed to move into the directory you specified (`CHDIR`
 means **ch**ange **dir**ectory). Check your Systemd unit file to make sure that
 the working directory you have configured is the correct one and really exists.
 
-### `502 Bad Gateway`
+### :boom: `502 Bad Gateway`
 
 If you see this error in your browser when trying to access an nginx site you
 have configured, it means that nginx cannot reach the proxy address you have
@@ -762,7 +787,7 @@ defined. Check your nginx configuration to make sure that you are using the
 correct address and port. Are you sure your application is actually listening on
 that port?
 
-### I forgot to fork the Minesweeper repository and I have already cloned it
+### :boom: I forgot to fork the Minesweeper repository and I have already cloned it
 
 You may have cloned the exercise's repository directly:
 
@@ -781,7 +806,7 @@ your GitHub username):
 $> git remote set-url origin https://github.com/MyGitHubUser/minesweeper.git
 ```
 
-### I don't remember the password I used for the `minesweeper` PostgreSQL user
+### :boom: I don't remember the password I used for the `minesweeper` PostgreSQL user
 
 You can change it with the following command:
 
@@ -789,7 +814,7 @@ You can change it with the following command:
 $> sudo -u postgres psql -c '\password minesweeper'
 ```
 
-### PostgreSQL debugging
+### :boom: PostgreSQL debugging
 
 You can list available databases with the following command:
 
