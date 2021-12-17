@@ -387,9 +387,9 @@ dependency manager and build tool of the [Elixir][elixir] ecosystem, much like
   Erlang/OTP][erlang] runtime), much like [Java][java] must be compiled to [Java
   Virtual Machine][jvm] bytecode (the JVM is the Java runtime).
 * The **`mix frontend.install` command** is an
-  [alias](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/mix.exs#L70)
+  [alias](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/mix.exs#L70)
   for the [`scripts/install-frontend.sh`
-  script](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/scripts/install-frontend.sh)
+  script](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/scripts/install-frontend.sh)
   which will download the JavaScript dependencies required by the application's
   [Alpine.js][alpinejs] frontend. The script uses [npm][npm], the
   [Node.js][node] & [JavaScript][js] package manager which is installed
@@ -397,12 +397,12 @@ dependency manager and build tool of the [Elixir][elixir] ecosystem, much like
 
   The dependencies and which versions to install are [listed in the
   application's `assets/package.json`
-  file](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/assets/package.json#L10-L26).
+  file](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/assets/package.json#L10-L26).
   They are downloaded from the [npm repository][npm] and saved into the
   `assets/node_modules` directory.
 * The [`mix ecto.migrate` command][mix-ecto-migrate] command executes [the
   application's database
-  migrations](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/priv/repo/migrations/20210921151550_initial_schema.exs).
+  migrations](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/priv/repo/migrations/20210921151550_initial_schema.exs).
   These migrations are Elixir programs that will connect to the database and
   create the table(s) required by the application.
 
@@ -708,10 +708,10 @@ Here's some visible changes you could easily make:
 
 * Change the [navbar title in the
   `lib/minesweeper_web/templates/layout/app.html.eex`
-  file](https://github.com/MediaComem/minesweeper/blob/849489e594d96fb1d40ed02935133f28cd95e1f3/lib/minesweeper_web/templates/layout/app.html.eex#L13).
+  file](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/lib/minesweeper_web/templates/layout/app.html.eex#L13).
 * Change the [difficulty levels in the
   `lib/minesweeper_web/templates/home/index.html.eex`
-  file](https://github.com/MediaComem/minesweeper/blob/main/lib/minesweeper_web/templates/home/index.html.eex#L5-L8).
+  file](https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/lib/minesweeper_web/templates/home/index.html.eex#L5-L8).
 
 
 
@@ -963,7 +963,7 @@ Run the `exit` command when you are done to exit the PostgreSQL console.
 
 [alpinejs]: https://alpinejs.dev
 [app-config]: https://github.com/MediaComem/minesweeper#configuration
-[app-deps]: https://github.com/MediaComem/minesweeper/blob/75c391fa9a15914951d74b41e7a7914f8e09d28a/mix.exs#L40-L57
+[app-deps]: https://github.com/MediaComem/minesweeper/blob/ca3e6fb2956afc751274ce2589ff9490c90c5e00/mix.exs#L40-L57
 [auto-deploy-ex]: https://github.com/MediaComem/comem-archidep/blob/master/ex/git-automated-deployment.md
 [automated-deployment-nginx-update]: https://github.com/MediaComem/comem-archidep/blob/master/ex/git-automated-deployment.md#update-the-todolist-nginx-configuration
 [automated-tests]: https://en.wikipedia.org/wiki/Test_automation
