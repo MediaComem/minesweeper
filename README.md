@@ -73,7 +73,7 @@ Additionally, to compile the backend and frontend, you will need:
   $> cd minesweeper
   $> mix deps.get
   ```
-* Compile the application (*this might take a while*):
+* Compile the application (*this might take a while the first time*):
 
   ```bash
   $> mix compile
@@ -146,7 +146,8 @@ suite][automated-tests]:
   ```bash
   $> sudo -u postgres psql -c 'CREATE EXTENSION "uuid-ossp";' minesweeper-test
   ```
-* Compile the application in test mode (*this might take a while*):
+* Compile the application in test mode (*this might take a while the first
+  time*):
 
   ```bash
   $> MIX_ENV=test mix compile
@@ -197,7 +198,7 @@ the application running.
 
 ## Run the application in production mode
 
-* Compile the application in production mode (*this might take a while*):
+* Compile the application in production mode (*this might take a while the first time*):
 
   ```bash
   $> MIX_ENV=prod mix compile
