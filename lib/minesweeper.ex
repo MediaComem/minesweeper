@@ -33,6 +33,18 @@ defmodule Minesweeper do
     end
   end
 
+  def list_games() do
+    games =
+      Repo.all(
+        from g in Game,
+          where: g.state in [:win, :loss],
+          order_by: [desc: g.updated_at],
+          preload: :moves
+      )
+
+    {:ok, games}
+  end
+
   def play(id, [col, row] = position)
       when is_binary(id) and is_column(col) and is_row(row) do
     with {:ok, game_id} <- cast_game_id(id),

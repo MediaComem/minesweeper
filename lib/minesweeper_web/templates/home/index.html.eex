@@ -8,6 +8,34 @@
       <button type="button" class="btn btn-lg btn-danger mt-1" @click="$store.game.configure({ width: 30, height: 16, number_of_bombs: 99 })">Expert</button>
     </div>
   </template>
+
+  <%= if length(@games) >= 1 do %>
+    <div id="previous-games" class="container mt-5 text-center">
+      <h2>Previous games</h2>
+      <ul class="mt-3 list-unstyled">
+        <%= for game <- @games do %>
+          <li>
+            <%= game.width %>x<%= game.height %>
+            game
+            <%= if game.state == :win do %>
+              with
+              <%= length(game.bombs) %>
+              bombs won
+            <% end %>
+            <%= if game.state == :loss do %>
+              lost in
+              <%= length(game.moves) %>
+              moves
+            <% end %>
+            at
+            <%= Calendar.strftime(game.updated_at, "%H:%M") %>
+            on
+            <%= Calendar.strftime(game.updated_at, "%B %-d, %Y") %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
 </div>
 
 <!-- Game -->

@@ -8,6 +8,7 @@ import { DateTime } from 'luxon';
 const storageKey = 'minesweeper';
 const rawStoredData = localStorage.getItem(storageKey);
 const storedData = rawStoredData ? JSON.parse(rawStoredData) : {};
+const $previousGames = document.getElementById('previous-games');
 
 Alpine.store('game', {
   id: storedData.gameId,
@@ -36,6 +37,7 @@ Alpine.store('game', {
             height: game.height,
             number_of_bombs: game.number_of_bombs
           };
+          $previousGames.style.display = 'none';
 
           const flagged = storedData.flagged || [];
           const uncovered = game.moves.reduce(
@@ -88,6 +90,7 @@ Alpine.store('game', {
           .map(() => ({ value: -1, flagged: false }))
       );
     this.state = 'configured';
+    $previousGames.style.display = 'none';
   },
 
   flag(col, row, event) {
@@ -138,6 +141,8 @@ Alpine.store('game', {
     this.timer = setInterval(() => {
       this.elapsedTime = getElapsedTime(this.startTime);
     }, 1000);
+
+    $previousGames.style.display = 'none';
 
     this.persist();
     this.reveal(uncovered);
