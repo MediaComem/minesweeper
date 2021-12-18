@@ -40,7 +40,7 @@ defmodule Minesweeper.Config do
   defp env_config_value!(module, path, opts)
        when is_list(opts) and is_list(path) do
     description = Keyword.fetch!(opts, :desc)
-    coerce = Keyword.get(opts, :coerce, &Function.identity(&1))
+    coerce = Keyword.get(opts, :coerce, &parse_through/2)
 
     env_var_suffix =
       if custom_suffix = Keyword.get(opts, :env) do
@@ -114,4 +114,6 @@ defmodule Minesweeper.Config do
         """
     end
   end
+
+  defp parse_through(value, _), do: value
 end
