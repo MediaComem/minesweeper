@@ -48,8 +48,8 @@ Additionally, to compile the backend and frontend, you will need:
   Shall the new role be allowed to create more new roles? (y/n) n
   ```
 
-  > You should answer no to all questions. The `minesweeper` user should have no
-  > special privileges.
+  > You should answer no to all questions. The `minesweeper` user does not need
+  > any special privileges.
 * Create a PostgreSQL database named `minesweeper` and owned by the
   `minesweeper` user:
 
@@ -85,8 +85,15 @@ Additionally, to compile the backend and frontend, you will need:
   ```
 * Configure the application. **You can do this in one of two ways:**
 
-  * **Either** create a local configuration file (ignored by Git) based on the
-    provided sample:
+  * Set any of the [documented environment variables](#environment-variables),
+    for example:
+
+    ```bash
+    export MINESWEEPER_DATABASE_URL="ecto://minesweeper:mysecretpassword@localhost:5432/minesweeper"
+    export MINESWEEPER_HTTP_PORT=3000
+    export MINESWEEPER_SECRET_KEY_BASE="mysecretkey"
+    ```
+  * Create a local configuration file based on the provided sample:
 
     ```bash
     cp config/local.sample.exs config/local.exs
@@ -96,31 +103,20 @@ Additionally, to compile the backend and frontend, you will need:
 
     ```bash
     nano config/local.exs
+    vim config/local.exs
     ```
 
     Read the instructions contained in the file and fill in the database
     connection URL and web endpoint settings.
 
+    > The `config/local.exs` file will be ignored by Git.
+    >
     > Configuration parameters provided this way will be bundled in the
     > compiled production release.
-  * **Or** set the [documented environment variables](#environment-variables),
-    for example:
 
-    ```bash
-    export MINESWEEPER_DATABASE_URL="ecto://minesweeper:mysecretpassword@localhost:5432/minesweeper"
-    export MINESWEEPER_HTTP_PORT=3000
-    export MINESWEEPER_SECRET_KEY_BASE="mysecretkey"
-    ```
-
-    > Configuration parameters provided this way are only valid in the shell/SSH
-    > session where you run these commands. You will need to run them again in
-    > each new shell or add them to your shell's startup configuration file
-    > (e.g. `.bash_profile`). When using a process manager like Systemd, you
-    > will need to tell Systemd to provide these environment variables.
-
-  > You can also use both the local configuration file and environment
-  > variables, in which case the environment variables specified at runtime will
-  > always override the corresponding settings in the configuration file.
+  > You can use both the local configuration file and environment variables, in
+  > which case the environment variables specified at runtime will always
+  > override the corresponding settings in the configuration file.
 * Migrate the production database:
 
   ```bash
