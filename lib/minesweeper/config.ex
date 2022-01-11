@@ -10,11 +10,17 @@ defmodule Minesweeper.Config do
   @app :minesweeper
 
   def database_url!() do
-    env_config_value!(Minesweeper.Repo, :url, env: :database_url, desc: "Database connection URL")
+    env_config_value!(Minesweeper.Repo, :url,
+      env: :database_url,
+      env_aliases: ["DATABASE_URL"],
+      desc: "Database connection URL",
+      coerce: &parse_env_database_url/2
+    )
   end
 
   def port!() do
     env_config_value!(MinesweeperWeb.Endpoint, [:http, :port],
+      env_aliases: ["PORT"],
       desc: "Server port",
       coerce: &parse_env_port/2
     )
@@ -50,7 +56,8 @@ defmodule Minesweeper.Config do
       end
 
     env_var = "MINESWEEPER_#{env_var_suffix}"
-    env_value = System.get_env(env_var)
+    env_aliases = Keyword.get(opts, :env_aliases, [])
+    env_value = first_available_env_var([env_var | env_aliases])
 
     config_source = Application.fetch_env!(@app, module)
     config_value = get_in(config_source, path)
@@ -74,6 +81,36 @@ defmodule Minesweeper.Config do
         Set the $#{env_var} environment variable or configure the
         "#{human_path}" key of #{human_module} in config/local.exs (see sample file
         #config/local.sample.exs)
+        """
+    end
+  end
+
+  defp first_available_env_var([]) do
+    nil
+  end
+
+  defp first_available_env_var([env_var | remaining_env_vars]) do
+    if value = System.get_env(env_var) do
+      value
+    else
+      first_available_env_var(remaining_env_vars)
+    end
+  end
+
+  defp parse_env_database_url(value, env_var) when is_binary(value) and is_binary(env_var) do
+    case uri = URI.parse(value) do
+      %URI{scheme: scheme, host: host}
+      when scheme in ["ecto", "postgres"] and is_binary(host) and host != "" ->
+        URI.to_string(%URI{uri | scheme: "ecto"})
+
+      %URI{host: host} when is_binary(host) and host != "" ->
+        raise """
+        Environment variable $#{env_var} must be an ecto:// or postgres:// URL
+        """
+
+      %URI{host: host} when is_nil(host) or host == "" ->
+        raise """
+        Environment variable $#{env_var} must be an ecto:// or postgres:// URL with a host component
         """
     end
   end
