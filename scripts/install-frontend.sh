@@ -10,5 +10,4 @@ command -v npm &>/dev/null || fail "npm command not found; did you install Node.
 
 set -x
 
-cd assets
 npm ci

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.0",
+  "description": "A minesweeper web application",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run build --workspace assets",
+    "build:dev": "npm run build --workspace assets",
+    "watch": "npm run watch --workspace assets"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  },
+  "workspaces": [
+    "assets"
+  ]
+}

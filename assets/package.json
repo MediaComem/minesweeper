@@ -1,6 +1,7 @@
 {
-  "repository": {},
-  "description": " ",
+  "version": "0.0.0",
+  "description": "A minesweeper web application",
+  "private": true,
   "license": "MIT",
   "scripts": {
     "build": "webpack --mode production",
