@@ -99,9 +99,9 @@ defmodule Minesweeper.Config do
 
   defp parse_env_database_url(value, env_var) when is_binary(value) and is_binary(env_var) do
     case uri = URI.parse(value) do
-      %URI{scheme: scheme, host: host}
+      %URI{scheme: scheme, host: host, query: query}
       when scheme in ["ecto", "postgres"] and is_binary(host) and host != "" ->
-        URI.to_string(%URI{uri | scheme: "ecto"})
+        URI.to_string(%URI{uri | scheme: "ecto", query: enrich_database_url_query(query)})
 
       %URI{host: host} when is_binary(host) and host != "" ->
         raise """
@@ -114,6 +114,11 @@ defmodule Minesweeper.Config do
         """
     end
   end
+
+  defp enrich_database_url_query(nil), do: URI.encode_query(%{"ssl" => true})
+
+  defp enrich_database_url_query(query),
+    do: query |> URI.decode_query() |> Map.put_new("ssl", true)
 
   defp parse_env_port(value, env_var) when is_binary(value) and is_binary(env_var) do
     parse_env_integer(value, env_var, 1, 65_535)
