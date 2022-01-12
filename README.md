@@ -270,12 +270,12 @@ corresponding parameters from the configuration file.
 
 ### Environment variables
 
-| Environment variable          | Default value                              | Description                                                                                              |
-| :---------------------------- | :----------------------------------------- | :------------------------------------------------------------------------------------------------------- |
-| `MINESWEEPER_DATABASE_URL`    | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)     |
-| `MINESWEEPER_HTTP_PORT`       | `3000`                                     | The port the HTTP server listens on.                                                                     |
-| `MINESWEEPER_SECRET_KEY_BASE` | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). |
-| `MINESWEEPER_URL`             | `http://localhost:3000`                    | The base URL at which the application is publicly available.                                             |
+| Environment variable                         | Default value                              | Description                                                                                              |
+| :------------------------------------------- | :----------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+| `MINESWEEPER_DATABASE_URL` or `DATABASE_URL` | `ecto://minesweeper@localhost/minesweeper` | Database connection URL (format is `ecto://<username>[:<password>]@<host>[:<port>]/<database-name>`)     |
+| `MINESWEEPER_HTTP_PORT` or `PORT`            | `3000`                                     | The port the HTTP server listens on.                                                                     |
+| `MINESWEEPER_SECRET_KEY_BASE`                | -                                          | A secret key used as a base to generate secrets for encrypting and signing data (e.g. cookies & tokens). |
+| `MINESWEEPER_URL`                            | `http://localhost:3000`                    | The base URL at which the application is publicly available.                                             |
 
 > You can generate a strong secret key base by running the `mix phx.gen.secret`
 > command in the project's directory.
