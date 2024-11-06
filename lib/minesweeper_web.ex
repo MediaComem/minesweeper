@@ -17,6 +17,8 @@ defmodule MinesweeperWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(assets css fonts images js favicon.ico robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: MinesweeperWeb
@@ -24,6 +26,8 @@ defmodule MinesweeperWeb do
       import Plug.Conn
       alias MinesweeperWeb.FallbackController
       alias MinesweeperWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -64,11 +68,22 @@ defmodule MinesweeperWeb do
       import MinesweeperWeb.ErrorHelpers
       alias MinesweeperWeb.Router.Helpers, as: Routes
 
+      unquote(verified_routes())
+
       def put_if(map, key, value, false), do: map
       def put_if(map, key, value, true), do: Map.put(map, key, value)
 
       def put_non_nil(map, _key, nil), do: map
       def put_non_nil(map, key, value), do: Map.put(map, key, value)
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: MinesweeperWeb.Endpoint,
+        router: MinesweeperWeb.Router,
+        statics: MinesweeperWeb.static_paths()
     end
   end
 

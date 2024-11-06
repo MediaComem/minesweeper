@@ -9,7 +9,7 @@ defmodule MinesweeperWeb.Endpoint do
     at: "/",
     from: :minesweeper,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: MinesweeperWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

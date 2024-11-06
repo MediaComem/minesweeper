@@ -24,6 +24,8 @@ defmodule MinesweeperWeb.ConnCase do
 
   using do
     quote do
+      use MinesweeperWeb, :verified_routes
+
       # Import conveniences for testing with connections and views
       import AssertHTML
       import Plug.Conn
