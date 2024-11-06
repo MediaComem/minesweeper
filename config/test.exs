@@ -8,7 +8,7 @@ config :minesweeper, Minesweeper.Repo, pool: Ecto.Adapters.SQL.Sandbox
 config :minesweeper, MinesweeperWeb.Endpoint, server: false
 
 # Print only warnings and errors during test.
-config :logger, level: :warn
+config :logger, level: :warning
 
 # Generate coverage report when re-running tests.
 config :mix_test_watch, tasks: ["coveralls.html"]

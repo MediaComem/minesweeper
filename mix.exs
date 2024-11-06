@@ -4,11 +4,10 @@ defmodule Minesweeper.MixProject do
   def project do
     [
       app: :minesweeper,
-      version: "1.0.1",
-      elixir: "~> 1.12",
+      version: "1.1.0",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
-      compilers: [:phoenix] ++ Mix.compilers(),
       deps: project_dependencies(),
       preferred_cli_env: [
         coveralls: :test,
@@ -39,20 +38,22 @@ defmodule Minesweeper.MixProject do
 
   defp project_dependencies do
     [
-      {:phoenix, "~> 1.6.2"},
-      {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.7"},
-      {:postgrex, "~> 0.15.13"},
-      {:phoenix_html, "~> 3.1"},
-      {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
+      {:phoenix, "~> 1.7"},
+      {:phoenix_ecto, "~> 4.6"},
+      {:phoenix_html_helpers, "~> 1.0"},
+      {:phoenix_view, "~> 2.0"},
+      {:ecto_sql, "~> 3.12"},
+      {:postgrex, "~> 0.19.2"},
+      {:phoenix_html, "~> 4.1"},
+      {:jason, "~> 1.4"},
+      {:plug_cowboy, "~> 2.7"},
       # Development dependencies
-      {:phoenix_live_reload, "~> 1.3", only: :dev},
+      {:phoenix_live_reload, "~> 1.5", only: :dev},
       # Test dependencies
-      {:assert_html, "~> 0.1.2", only: :test},
-      {:excoveralls, "~> 0.14.4", only: :test},
-      {:ex_machina, "~> 2.7.0", only: :test},
-      {:mix_test_watch, "~> 1.0", only: :test, runtime: false}
+      {:assert_html, "~> 0.1.4", only: :test},
+      {:excoveralls, "~> 0.18.3", only: :test},
+      {:ex_machina, "~> 2.8", only: :test},
+      {:mix_test_watch, "~> 1.2", only: :test, runtime: false}
     ]
   end
 

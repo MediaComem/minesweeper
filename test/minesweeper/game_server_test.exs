@@ -19,7 +19,7 @@ defmodule Minesweeper.GameServerTest do
         returning: [:id]
       )
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     assert {:ok, %Move{id: id, game: updated_game, played_at: played_at} = new_move} =
              GameServer.play(game.id, [1, 1])
@@ -72,7 +72,7 @@ defmodule Minesweeper.GameServerTest do
     insert(:move, game: game, position: [1, 1])
     insert(:move, game: game, position: [1, 3])
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     # ┌───┐
     # │x1z│ x == 1
@@ -136,7 +136,7 @@ defmodule Minesweeper.GameServerTest do
     # └───┘
     insert(:move, game: game, position: [1, 1])
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     # ┌───┐
     # │x  │ x = 1
@@ -196,7 +196,7 @@ defmodule Minesweeper.GameServerTest do
     # └─────┘
     insert(:move, game: game, position: [1, 2])
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     # ┌─────┐
     # │00000│ b = 3
@@ -252,7 +252,7 @@ defmodule Minesweeper.GameServerTest do
         returning: [:id]
       )
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     # ┌─────┐
     # │00000│ a = 0
@@ -400,7 +400,7 @@ defmodule Minesweeper.GameServerTest do
     # └─────┘
     insert(:move, game: game, position: [5, 4])
 
-    assert {:ok, _} = GameServer.start_link(game.id)
+    start_link_supervised!({GameServer, game.id})
 
     # ┌─────┐
     # │00000│ e = 0
@@ -452,7 +452,7 @@ defmodule Minesweeper.GameServerTest do
 
     insert(:move, game: game, position: [1, 1])
 
-    assert {:ok, pid} = GameServer.start_link(game.id)
+    assert pid = start_link_supervised!({GameServer, game.id})
     assert GameServer.start_link(game.id) == {:ok, pid}
   end
 

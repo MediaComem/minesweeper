@@ -19,6 +19,15 @@ defmodule Minesweeper.UtilsTest do
   end
 
   test "fail to start a singleton gen server" do
-    assert {:error, :foo} == Utils.start_singleton_gen_server(TestServer, :foo)
+    pid = start_supervised!({Agent, fn -> nil end})
+    Process.monitor(pid)
+
+    try do
+      Agent.update(pid, fn _ -> Utils.start_singleton_gen_server(TestServer, :foo) end)
+    catch
+      :exit, _e -> :ignore
+    end
+
+    assert_receive {:DOWN, _ref, :process, ^pid, :foo}
   end
 end
