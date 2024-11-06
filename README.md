@@ -29,7 +29,7 @@ To run the application, you will need:
 
 Additionally, to compile the backend and frontend, you will need:
 
-* [Elixir][elixir] 1.12 or 1.13 with [Erlang/OTP][erlang] 24
+* [Elixir][elixir] 1.17 with [Erlang/OTP][erlang] 26
 * [Node.js][node] 16
 
 
