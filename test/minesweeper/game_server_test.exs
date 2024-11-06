@@ -452,8 +452,14 @@ defmodule Minesweeper.GameServerTest do
 
     insert(:move, game: game, position: [1, 1])
 
-    assert pid = start_link_supervised!({GameServer, game.id})
+    assert pid = start_supervised!(%{id: {GameServer, game.id}, start: {GameServer, :start_link, [game.id]}})
     assert GameServer.start_link(game.id) == {:ok, pid}
+
+    # Play a move in the game to ensure that the game is done initializing.
+    # Otherwise a warning might be printed because the game initialization query
+    # is still running when the test shuts down. See
+    # https://hexdocs.pm/ecto_sql/3.7.0/Ecto.Adapters.SQL.Sandbox.html#module-owner-exited.
+    assert {:ok, %Move{}} = GameServer.play(game.id, [1, 1])
   end
 
   @tag capture_log: true
