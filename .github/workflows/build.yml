@@ -42,8 +42,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            website/deps
-            website/_build
+            deps
+            _build
           key: ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-
