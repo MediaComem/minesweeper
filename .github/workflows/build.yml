@@ -13,7 +13,7 @@ jobs:
     env:
       ERLANG_VERSION: 26.2.5.5
       ELIXIR_VERSION: 1.17.3
-      MINESWEEPER_DATABASE_URL: ecto://minesweeper:minesweeper@localhost/minesweeper
+      MINESWEEPER_DATABASE_URL: ecto://minesweeper:minesweeper@localhost/minesweeper?ssl=true
       MINESWEEPER_SECRET_KEY_BASE: secret
     strategy:
       matrix:
