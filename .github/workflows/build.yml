@@ -1,0 +1,105 @@
+name: build
+
+on:
+  push:
+    branches:
+      - '**/*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    env:
+      ERLANG_VERSION: 26.2.5.5
+      ELIXIR_VERSION: 1.17.3
+    strategy:
+      matrix:
+        postgres: [17]
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: floodit
+          POSTGRES_USER: floodit
+          POSTGRES_PASSWORD: floodit
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      # https://github.com/actions/checkout
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      # https://github.com/actions/cache
+      - name: Cache build
+        uses: actions/cache@v3
+        with:
+          path: |
+            website/deps
+            website/_build
+          key: ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-
+
+      # https://github.com/erlef/setup-beam
+      - name: Install Erlang/OTP & Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ env.ERLANG_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+
+      # https://github.com/asdf-vm/actions#setup
+      - name: Install asdf
+        uses: asdf-vm/actions/setup@v3
+        with:
+          asdf_branch: v0.14.1
+
+      - name: Install Node.js with asdf
+        run: |
+          asdf plugin add nodejs
+          asdf install nodejs
+          node --version
+
+      - name: Install backend dependencies
+        run: |
+          mix deps.get
+
+      - name: Install frontend dependencies
+        run: |
+          npm ci
+
+      - name: Compile the application
+        run: |
+          mix compile
+
+      - name: Create and migrate the database
+        run: |
+          mix ecto.create
+          mix ecto.migrate
+
+      - name: Run automated tests & measure code coverage for the backend
+        id: tests
+        run: |
+          mix coveralls.html --raise
+
+      - name: Check backend code formatting
+        run: |
+          mix format --check-formatted
+
+      - name: Check for unused dependencies
+        run: |
+          mix deps.unlock --check-unused
+
+      - name: Show retired dependencies
+        run: |
+          mix hex.audit
+
+      - name: Ensure there are no uncommitted changes
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
