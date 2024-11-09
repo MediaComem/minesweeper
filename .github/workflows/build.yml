@@ -13,6 +13,8 @@ jobs:
     env:
       ERLANG_VERSION: 26.2.5.5
       ELIXIR_VERSION: 1.17.3
+      MINESWEEPER_DATABASE_URL: ecto://minesweeper:minesweeper@localhost/minesweeper
+      MINESWEEPER_SECRET_KEY_BASE: secret
     strategy:
       matrix:
         postgres: [17]
@@ -22,9 +24,9 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: floodit
-          POSTGRES_USER: floodit
-          POSTGRES_PASSWORD: floodit
+          POSTGRES_DB: minesweeper
+          POSTGRES_USER: minesweeper
+          POSTGRES_PASSWORD: minesweeper
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
