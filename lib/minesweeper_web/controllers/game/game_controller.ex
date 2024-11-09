@@ -1,4 +1,4 @@
-defmodule MinesweeperWeb.GameController do
+defmodule MinesweeperWeb.Game.GameController do
   use MinesweeperWeb, :controller
 
   alias Minesweeper

@@ -6,14 +6,14 @@ defmodule MinesweeperWeb.FallbackController do
   def call(conn, {:error, {:not_found, resource}}) do
     conn
     |> put_status(:not_found)
-    |> put_view(MinesweeperWeb.ErrorView)
+    |> put_view(MinesweeperWeb.Errors.ErrorsView)
     |> render("404.json", %{resource: resource})
   end
 
   def call(conn, {:error, {:game_done, state}}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> put_view(MinesweeperWeb.ErrorView)
+    |> put_view(MinesweeperWeb.Errors.ErrorsView)
     |> render("422.json", %{error: %{"code" => "game_done", "state" => state}})
   end
 
@@ -28,7 +28,7 @@ defmodule MinesweeperWeb.FallbackController do
   defp send_validation_errors(conn, %Changeset{} = changeset) do
     conn
     |> put_status(:unprocessable_entity)
-    |> put_view(MinesweeperWeb.ErrorView)
+    |> put_view(MinesweeperWeb.Errors.ErrorsView)
     |> render("422.json", %{changeset: changeset})
   end
 end

@@ -21,28 +21,27 @@ defmodule MinesweeperWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: MinesweeperWeb
+      use Phoenix.Controller,
+        namespace: MinesweeperWeb,
+        layouts: [html: MinesweeperWeb.Layout.LayoutView]
 
       import Plug.Conn
       alias MinesweeperWeb.FallbackController
-      alias MinesweeperWeb.Router.Helpers, as: Routes
 
       unquote(verified_routes())
     end
   end
 
-  def view do
+  def html do
     quote do
-      use Phoenix.View,
-        root: "lib/minesweeper_web/templates",
-        namespace: MinesweeperWeb
+      use Phoenix.Component
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
-        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
 
-      # Include shared imports and aliases for views
-      unquote(view_helpers())
+      # Include general helpers for rendering HTML
+      unquote(html_helpers())
     end
   end
 
@@ -55,19 +54,18 @@ defmodule MinesweeperWeb do
     end
   end
 
-  defp view_helpers do
+  defp html_helpers do
     quote do
-      # Use all HTML functionality (forms, tags, etc)
+      # HTML escaping functionality
       import Phoenix.HTML
-      import Phoenix.HTML.Form
-      use PhoenixHTMLHelpers
 
-      # Import basic rendering functionality (render, render_layout, etc)
-      import Phoenix.View
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
 
-      import MinesweeperWeb.ErrorHelpers
-      alias MinesweeperWeb.Router.Helpers, as: Routes
+      # Helpers for error handling
+      import MinesweeperWeb.Errors.ErrorsHelpers
 
+      # Routes generation with the ~p sigil
       unquote(verified_routes())
 
       def put_if(map, key, value, false), do: map

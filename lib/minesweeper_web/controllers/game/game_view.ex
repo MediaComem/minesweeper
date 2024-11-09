@@ -1,5 +1,5 @@
-defmodule MinesweeperWeb.GameView do
-  use MinesweeperWeb, :view
+defmodule MinesweeperWeb.Game.GameView do
+  use MinesweeperWeb, :html
 
   alias Minesweeper.Game
   alias Minesweeper.Move

@@ -1,10 +1,11 @@
-defmodule MinesweeperWeb.ErrorView do
-  use MinesweeperWeb, :view
+defmodule MinesweeperWeb.Errors.ErrorsView do
+  use MinesweeperWeb, :html
+
+  embed_templates "./*"
 
   alias Ecto.Changeset
 
   import Phoenix.Controller, only: [status_message_from_template: 1]
-  import Phoenix.View, only: [render: 3]
 
   def render("404.json", %{resource: resource}) when is_atom(resource) do
     %{
@@ -31,13 +32,13 @@ defmodule MinesweeperWeb.ErrorView do
   end
 
   def render("404.html", assigns) do
-    render("generic.html", Map.put(assigns, :message, "Page not found"))
+    generic_error(Map.put(assigns, :message, "Page not found"))
   end
 
   # By default, Phoenix returns the status message from the template name. For
   # example, "404.html" becomes "Not Found".
-  def template_not_found(template, %{conn: conn} = assigns) do
-    render(__MODULE__, "generic.html",
+  def render(template, %{conn: conn} = assigns) do
+    generic_error(
       conn: conn,
       message: Map.get(assigns, :message, status_message_from_template(template))
     )

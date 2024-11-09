@@ -14,15 +14,15 @@ defmodule MinesweeperWeb.Router do
   scope "/", MinesweeperWeb do
     pipe_through :browser
 
-    get "/", HomeController, :index
+    get "/", Home.HomeController, :index
   end
 
   # REST API
   scope "/api", MinesweeperWeb do
     pipe_through :api
 
-    post "/games", GameController, :create
-    get "/games/:id", GameController, :show
-    post "/games/:id/moves", GameController, :play
+    post "/games", Game.GameController, :create
+    get "/games/:id", Game.GameController, :show
+    post "/games/:id/moves", Game.GameController, :play
   end
 end

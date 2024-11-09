@@ -16,7 +16,7 @@ config :minesweeper, Minesweeper.Repo, url: "ecto://minesweeper@localhost/minesw
 config :minesweeper, MinesweeperWeb.Endpoint,
   http: [port: 3000],
   pubsub_server: Minesweeper.PubSub,
-  render_errors: [view: MinesweeperWeb.ErrorView, accepts: ~w(html json), layout: false],
+  render_errors: [view: MinesweeperWeb.Errors.ErrorsView, accepts: ~w(html json), layout: false],
   server: true,
   url: [
     host: "localhost",

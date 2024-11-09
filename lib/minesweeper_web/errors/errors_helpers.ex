@@ -1,4 +1,4 @@
-defmodule MinesweeperWeb.ErrorHelpers do
+defmodule MinesweeperWeb.Errors.ErrorsHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """

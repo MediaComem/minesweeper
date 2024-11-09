@@ -41,10 +41,10 @@ defmodule Minesweeper.MixProject do
       {:phoenix, "~> 1.7"},
       {:phoenix_ecto, "~> 4.6"},
       {:phoenix_html_helpers, "~> 1.0"},
-      {:phoenix_view, "~> 2.0"},
       {:ecto_sql, "~> 3.12"},
       {:postgrex, "~> 0.19.2"},
       {:phoenix_html, "~> 4.1"},
+      {:phoenix_live_view, "~> 0.20.17"},
       {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.7"},
       # Development dependencies
