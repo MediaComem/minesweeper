@@ -452,7 +452,12 @@ defmodule Minesweeper.GameServerTest do
 
     insert(:move, game: game, position: [1, 1])
 
-    assert pid = start_supervised!(%{id: {GameServer, game.id}, start: {GameServer, :start_link, [game.id]}})
+    assert pid =
+             start_supervised!(%{
+               id: {GameServer, game.id},
+               start: {GameServer, :start_link, [game.id]}
+             })
+
     assert GameServer.start_link(game.id) == {:ok, pid}
 
     # Play a move in the game to ensure that the game is done initializing.
