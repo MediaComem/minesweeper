@@ -101,7 +101,11 @@ defmodule Minesweeper.Config do
     case uri = URI.parse(value) do
       %URI{scheme: scheme, host: host, query: query}
       when scheme in ["ecto", "postgres"] and is_binary(host) and host != "" ->
-        URI.to_string(%URI{uri | scheme: "ecto", query: enrich_database_url_query(query)})
+        URI.to_string(%URI{
+          uri
+          | scheme: "ecto",
+            query: query |> enrich_database_url_query() |> URI.encode_query()
+        })
 
       %URI{host: host} when is_binary(host) and host != "" ->
         raise """
