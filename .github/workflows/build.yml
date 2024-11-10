@@ -17,7 +17,7 @@ jobs:
       MINESWEEPER_SECRET_KEY_BASE: secret
     strategy:
       matrix:
-        postgres: [17]
+        postgres: [12, 13, 14, 15, 16, 17]
     services:
       postgres:
         image: postgres:${{ matrix.postgres }}
