@@ -37,7 +37,7 @@ Additionally, to compile the backend and frontend, you will need:
   * [Elixir][elixir] 1.16 with [Erlang/OTP][erlang] 25-26
   * [Elixir][elixir] 1.15 with [Erlang/OTP][erlang] 25-26
   * [Elixir][elixir] 1.14 with [Erlang/OTP][erlang] 25-26
-* [Node.js][node] 22
+* [Node.js][node] 18, 20 or 22
 
 
 
