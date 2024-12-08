@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       ERLANG_VERSION: 26.2.5.5
-      ELIXIR_VERSION: 1.17.3
       MINESWEEPER_DATABASE_URL: ecto://minesweeper:minesweeper@localhost/minesweeper
       MINESWEEPER_SECRET_KEY_BASE: secret
     strategy:
       matrix:
+        elixir: [1.16.3, 1.17.3]
         postgres: [12, 13, 14, 15, 16, 17]
     services:
       postgres:
@@ -44,16 +44,16 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ env.ELIXIR_VERSION }}-
+            ${{ runner.os }}-mix-erlang-${{ env.ERLANG_VERSION }}-elixir-${{ matrix.elixir }}-
 
       # https://github.com/erlef/setup-beam
       - name: Install Erlang/OTP & Elixir
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ env.ERLANG_VERSION }}
-          elixir-version: ${{ env.ELIXIR_VERSION }}
+          elixir-version: ${{ matrix.elixir }}
 
       # https://github.com/asdf-vm/actions#setup
       - name: Install asdf
