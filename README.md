@@ -27,12 +27,16 @@ frontend has been developed with the [Alpine.js JavaScript framework][alpinejs].
 
 To run the application, you will need:
 
-* [PostgreSQL][postgresql] version 13-17 and a database with the [uuid-ossp
+* [PostgreSQL][postgresql] 13-17 and a database with the [uuid-ossp
   extension][postgresql-uuid-ossp]
 
 Additionally, to compile the backend and frontend, you will need:
 
-* [Elixir][elixir] 1.17 with [Erlang/OTP][erlang] 26
+* One of the following Elixir and Erlang/OTP combinations:
+  * [Elixir][elixir] 1.17 with [Erlang/OTP][erlang] 25-27
+  * [Elixir][elixir] 1.16 with [Erlang/OTP][erlang] 25-26
+  * [Elixir][elixir] 1.15 with [Erlang/OTP][erlang] 25-26
+  * [Elixir][elixir] 1.14 with [Erlang/OTP][erlang] 25-26
 * [Node.js][node] 22
 
 
