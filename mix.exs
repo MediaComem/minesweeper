@@ -44,7 +44,7 @@ defmodule Minesweeper.MixProject do
       {:ecto_sql, "~> 3.12"},
       {:postgrex, "~> 0.19.2"},
       {:phoenix_html, "~> 4.1"},
-      {:phoenix_live_view, "~> 0.20.17"},
+      {:phoenix_live_view, "~> 1.0.0"},
       {:jason, "~> 1.4"},
       {:plug_cowboy, "~> 2.7"},
       # Development dependencies
