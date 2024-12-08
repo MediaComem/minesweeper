@@ -132,16 +132,20 @@ Alpine.store('game', {
 
     const {
       id,
+      state,
       moves: [{ uncovered }]
     } = await res.json();
 
     this.id = id;
-    this.state = 'ongoing';
+    this.state = state;
     this.startTime = DateTime.now();
     this.elapsedTime = '00:00';
-    this.timer = setInterval(() => {
-      this.elapsedTime = getElapsedTime(this.startTime);
-    }, 1000);
+
+    if (state !== 'win') {
+      this.timer = setInterval(() => {
+        this.elapsedTime = getElapsedTime(this.startTime);
+      }, 1000);
+    }
 
     hidePreviousGames();
 

@@ -54,6 +54,15 @@ defmodule Minesweeper.RulesTest do
     end
   end
 
+  test "win on the first move on a 2x2 board with three bombs" do
+    # ┌──┐
+    # │*x│
+    # │**│
+    # └──┘
+    assert uncover([2, 1], [[1, 1], [1, 2], [2, 2]], [], {2, 2}) ==
+             {:ok, {:win, [{[2, 1], 3}]}}
+  end
+
   test "reveal 1 surrounding bomb on a 3x3 board with a bomb in the middle" do
     # ┌───┐
     # │xxx│ x == 1
