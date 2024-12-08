@@ -23,9 +23,6 @@ jobs:
         erlang: [27.1.3]
         postgres: [13, 14, 15, 16, 17]
         include:
-          - elixir: 1.13.4
-            erlang: 25.3.2.16
-            postgres: 17
           - elixir: 1.14.5
             erlang: 25.3.2.16
             postgres: 17
