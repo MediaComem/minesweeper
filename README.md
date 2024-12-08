@@ -248,7 +248,7 @@ following commands in the application's directory:
 $> mix do deps.get, frontend.update
 
 # Apply any pending database migrations.
-$> mix ecto.migrate
+$> MIX_ENV=prod mix ecto.migrate
 
 # Rebuild the frontend in production mode and reassemble the Mix release:
 $> MIX_ENV=prod mix do frontend.build, phx.digest, release --overwrite
