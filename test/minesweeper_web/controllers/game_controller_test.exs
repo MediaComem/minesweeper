@@ -19,6 +19,7 @@ defmodule MinesweeperWeb.GameControllerTest do
 
     assert %{
              "id" => id,
+             "state" => state,
              "moves" => [
                %{"uncovered" => uncovered, "played_at" => played_at_str}
              ],
@@ -26,8 +27,9 @@ defmodule MinesweeperWeb.GameControllerTest do
            } = body
 
     assert id =~ uuid_regexp()
+    assert state == "ongoing" || state == "win"
     assert length(uncovered) >= 1
-    assert length(uncovered) <= 99
+    assert length(uncovered) <= 30 * 16 - 99
     assert [2, 3] in Enum.map(uncovered, &List.first/1)
 
     for [[col, row], bombs_uncovered] <- uncovered do
@@ -50,7 +52,7 @@ defmodule MinesweeperWeb.GameControllerTest do
              "width" => 30,
              "height" => 16,
              "number_of_bombs" => 99,
-             "state" => "ongoing",
+             "state" => state,
              "moves" => [
                %{
                  "position" => [2, 3],
@@ -62,8 +64,9 @@ defmodule MinesweeperWeb.GameControllerTest do
            }
 
     created_game = from(g in Game, where: g.id == ^id) |> Repo.one()
-    assert %Game{bombs: bombs} = created_game
+    assert %Game{state: game_state, bombs: bombs} = created_game
 
+    assert Atom.to_string(game_state) == state
     assert length(bombs) == 99
     assert Enum.uniq(bombs) == bombs
 
@@ -79,7 +82,7 @@ defmodule MinesweeperWeb.GameControllerTest do
              id: id,
              width: 30,
              height: 16,
-             state: :ongoing,
+             state: game_state,
              bombs: bombs,
              created_at: created_at,
              updated_at: created_at
