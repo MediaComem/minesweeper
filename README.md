@@ -33,10 +33,10 @@ To run the application, you will need:
 Additionally, to compile the backend and frontend, you will need:
 
 * One of the following Elixir and Erlang/OTP combinations:
-  * [Elixir][elixir] 1.17 with [Erlang/OTP][erlang] 25-27
-  * [Elixir][elixir] 1.16 with [Erlang/OTP][erlang] 25-26
-  * [Elixir][elixir] 1.15 with [Erlang/OTP][erlang] 25-26
-  * [Elixir][elixir] 1.14 with [Erlang/OTP][erlang] 25-26
+  * [Elixir][elixir] 1.17.x with [Erlang/OTP][erlang] 25-27
+  * [Elixir][elixir] 1.16.3 with [Erlang/OTP][erlang] 25-26
+  * [Elixir][elixir] 1.15.8 with [Erlang/OTP][erlang] 25-26
+  * [Elixir][elixir] 1.14.5 with [Erlang/OTP][erlang] 25-26
 * [Node.js][node] 18, 20 or 22
 
 
