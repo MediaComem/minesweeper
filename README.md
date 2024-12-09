@@ -211,6 +211,9 @@ the application running.
   ```bash
   $> MIX_ENV=prod mix do frontend.build, phx.digest
   ```
+
+  Your reverse proxy can serve the compiled assets out of the `priv/static`
+  directory.
 * Assemble a [mix release][mix-release] to run the application in production
   mode:
 
