@@ -4,7 +4,7 @@ defmodule Minesweeper.MixProject do
   def project do
     [
       app: :minesweeper,
-      version: "2.0.1",
+      version: "2.0.2",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
