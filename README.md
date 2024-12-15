@@ -251,13 +251,13 @@ To update the application after getting the latest changes, execute the
 following commands in the application's directory:
 
 ```bash
-# Update backend & frontend dependencies, and migrate the database:
+# Update backend & frontend dependencies
 $> mix do deps.get, frontend.update
 
-# Apply any pending database migrations.
+# Apply any pending database migrations
 $> MIX_ENV=prod mix ecto.migrate
 
-# Rebuild the frontend in production mode and reassemble the Mix release:
+# Rebuild the frontend in production mode and reassemble the Mix release
 $> MIX_ENV=prod mix do frontend.build, phx.digest, release --overwrite
 ```
 
