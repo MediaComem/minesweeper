@@ -1,4 +1,4 @@
 # https://asdf-vm.com
-elixir 1.17.3-otp-26
-erlang 26.2.5.5
+elixir 1.17.3-otp-27
+erlang 27.2
 nodejs 22.12.0
